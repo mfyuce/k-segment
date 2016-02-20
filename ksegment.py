@@ -1,9 +1,10 @@
 ﻿import numpy as np
+import utils
 
 '''
 nodes_info brief:
 the array info holds for each point an array of k size meaning the lowest cost
-it takes to reach the current point in i (0<i<=k) steps, for each cost theres
+it takes to reach the current point in i (0<i<=k) steps, for each cost there's
 a place to hold the point from which it came.
 how to access array:
     - first index : point number
@@ -52,42 +53,20 @@ def get_x_val_dividers(p, nodes):
         result = np.insert(result, 0, x_value)
     return result
 
-def calc_prep_dist(sorted_p):
-    #prep_dist = np.full((len(points), len(points)),float("inf"))
-    #prep_dist = np.random.rand(len(points),len(points)) *50
-    #prep_dist = prep_dist.astype(int)
-    #for index,value in np.ndenumerate(prep_dist):
-    #    if (index[0]>=index[1]):
-    #        prep_dist[index] = 9999999
-    #prep_dist = prep_dist.astype(int)
-    #### ^ RANDOM ^ ############# v ARBITRARY EXAMPLE v ################
-    prep_dist = np.array(
-        [[float('inf'),1,4,16,29,31],
-        [float('inf'),float('inf'),3,17,23,28],            
-        [float('inf'),float('inf'),float('inf'),4,10,17],
-        [float('inf'),float('inf'),float('inf'),float('inf'),7,20],
-        [float('inf'),float('inf'),float('inf'),float('inf'),float('inf'),4],
-        [float('inf'),float('inf'),float('inf'),float('inf'),float('inf'),float('inf')]])
+def calc_prep_dist(P):
+    prep_dist = np.full((len(P), len(P)),float("inf"))
+    for index,value in np.ndenumerate(prep_dist):
+        if (index[0]<index[1]):
+            segment = P[index[0]:index[1],:]
+            best_fit_line = utils.calc_best_fit_line(segment)
+            prep_dist[index] = utils.sqrd_dist_sum(segment, best_fit_line)
     return prep_dist
 
-def k_segment(p, k):
-    points = np.array(p, dtype=np.float)
-    print "input points:\n%s\n" % points
-
-    sorted_pts = points[points[:,0].argsort()]
-    print "sorted points:\n%s\n" % sorted_pts
-
-    prep_dist = calc_prep_dist(sorted_pts)
-    print "distances for each block(currently arbitrary or random):\n%s\n" % prep_dist
-
-    result = calc_partitions(prep_dist, len(sorted_pts), k)
-    print "dynamic programming (belman) result:\n%s\n" % result.info
-
-    dividers = get_x_val_dividers(sorted_pts, result)
-    print "the x values that divivde the pointset to k segments are:\n%s" % dividers
-
-def main():
-    p = [[4,2,6],[1,4,-2],[2,7,0],[15,-2,16],[17,4,13],[-2,-5,-109]]
-    k_segment(p,3)
-
-main()
+def k_segment(P, k):
+    prep_dist = calc_prep_dist(P)
+    #print "distances for each block:\n%s\n" % prep_dist
+    result = calc_partitions(prep_dist, len(P), k)
+    #print "dynamic programming (belman) result:\n%s\n" % result.info
+    dividers = get_x_val_dividers(P, result)
+    #print "the x values that divivde the pointset to k segments are:\n%s" % dividers
+    return dividers
