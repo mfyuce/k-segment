@@ -10,11 +10,17 @@ calc_best_fit_line -
         C[i,1] is the intercept with the i-th dimensional axis
 '''
 def calc_best_fit_line (P):
-    x = P[:,0]
-    A = np.vstack([x, np.ones(len(x))]).T
-    y = P[:,1:]
-    sol = np.linalg.lstsq(A, y)
-    return np.array([sol[0][0],sol[0][1]])
+    time_array = P[:,0]
+    A = np.vstack([time_array, np.ones(len(time_array))]).T
+    data = P[:,1:]
+    return np.linalg.lstsq(A, data)[0]
+
+def sqrd_dist_sum(P, line):
+    time_array = P[:,0]
+    A = np.vstack([time_array, np.ones(len(time_array))]).T
+    data = P[:,1:]
+    projected_points = np.dot(A, line)
+    return sum(np.linalg.norm(data - projected_points, axis=1)**2)
 
 def visualize_3d (P, best_fit_line):
     first_index = P[0,0]
@@ -28,6 +34,6 @@ def visualize_3d (P, best_fit_line):
     ax.plot3D(*line_pts.T)
     plt.show()
 
-P = np.array([[0,0,0],[1,1,2],[2,1,4],[3,2,-3],[4,4,8],[5,5,10],[6,6,12],[7,7,22]])
+P = np.array([[0,0,0],[1,1,2],[2,2,4],[3,3,6],[4,4,8],[5,5,10],[6,6,12],[7,7,20]])
 best_fit_line = calc_best_fit_line(P)
 visualize_3d (P, best_fit_line)
