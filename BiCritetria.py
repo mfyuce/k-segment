@@ -14,7 +14,7 @@ def bicriteria (P,k):
 
     # Lines  1 - 3
     if (len(P) <= (2 * k + 1)):
-        return 0
+        return one_seg(P)
 
     # line 5 - 9
     m = int(math.floor(len(P)/(2*k)))

@@ -3,9 +3,9 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{b87e80b9-acb4-4f4c-927b-b17622edfac9}</ProjectGuid>
+    <ProjectGuid>{3b167098-5062-4133-b2f6-05da7c6689f6}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>utils.py</StartupFile>
+    <StartupFile>test.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -22,8 +22,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BiCritetria.py" />
-    <Compile Include="calc_dist.py" />
-    <Compile Include="k-segment.py" />
+    <Compile Include="ksegment.py" />
+    <Compile Include="test.py" />
     <Compile Include="utils.py" />
   </ItemGroup>
   <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />

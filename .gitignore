@@ -50,3 +50,8 @@ Temporary Items
 *.pyperf
 *.pyproj
 *.pyproj
+*.suo
+k-segment.pyproj
+*.pyproj
+k-segment.pyproj
+*.pyproj

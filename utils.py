@@ -51,9 +51,7 @@ def visualize_3d (P, dividers):
     line_pts_list.append(pt_on_line(dividers[i+1], best_fit_line))
     lint_pts_arr = np.asarray(line_pts_list)
     
-    bicriteria_est = BiCritetria.bicriteria(P,4)
     print "real squared distance sum: ", all_sgmnt_sqrd_dist_sum
-    print "BiCritetria estimated distance sum: ", bicriteria_est
 
     ax = m3d.Axes3D(plt.figure())
     ax.scatter3D(*P.T)
