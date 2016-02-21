@@ -43,21 +43,27 @@ def visualize_3d (P, dividers):
     line_pts_list = []
     all_sgmnt_sqrd_dist_sum = 0
     for i in xrange(len(dividers)-1):
-        # dividers[i]-1 because signal index starts from 1 not 0
-        segment = P[dividers[i]-1:dividers[i+1],:]
+        # dividers[i]-1 because signal index starts from 1
+        line_start_arr_index = dividers[i]-1
+        line_end_arr_index = dividers[i+1]-2
+        segment = P[line_start_arr_index:line_end_arr_index,:]
         best_fit_line = calc_best_fit_line(segment)
-        line_pts_list.append(pt_on_line(dividers[i], best_fit_line))
+        if (i == len(dividers)-2):
+            line_pts_list.append([pt_on_line(dividers[i], best_fit_line),pt_on_line(dividers[i+1], best_fit_line)])
+        else:
+            line_pts_list.append([pt_on_line(dividers[i], best_fit_line),pt_on_line(dividers[i+1]-1, best_fit_line)])
         all_sgmnt_sqrd_dist_sum += sqrd_dist_sum(segment, best_fit_line)
-    line_pts_list.append(pt_on_line(dividers[i+1], best_fit_line))
-    lint_pts_arr = np.asarray(line_pts_list)
-    
     print "real squared distance sum: ", all_sgmnt_sqrd_dist_sum
 
     ax = m3d.Axes3D(plt.figure())
     ax.scatter3D(*P.T)
-    ax.plot3D(*lint_pts_arr.T)
+    for line in line_pts_list:
+        lint_pts_arr = np.asarray(line)
+        ax.plot3D(*lint_pts_arr.T)
 
     ax.set_xlabel('time axis')
+    ax.set_ylabel('x1 axis')
+    ax.set_zlabel('x2 axis')
 
     plt.show()
 
