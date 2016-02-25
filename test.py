@@ -1,8 +1,6 @@
 import numpy as np
 import utils
 import ksegment
-import BiCritetria
-import BalancedPartition
 import Coreset
 
 def main():
@@ -30,11 +28,9 @@ def main():
 
     P = np.c_[np.mgrid[1:N+1], data]
 
-    #dividers = ksegment.k_segment(P, k)
-    #bicriteria_est = Coreset.bicriteria(P,k)
-    #print "BiCritetria estimated distance sum: ", bicriteria_est
-    #utils.visualize_3d(P, dividers)
-
-    return res
+    dividers = ksegment.k_segment(P, k)
+    bicriteria_est = Coreset.bicriteria(P,k)
+    print "BiCritetria estimated distance sum: ", bicriteria_est
+    utils.visualize_3d(P, dividers)
 
 main()
