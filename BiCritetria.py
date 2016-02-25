@@ -4,8 +4,7 @@ import random as rnd
 import utils
 
 def one_seg (P):
-    best_fit_line = utils.calc_best_fit_line(P)
-    return utils.sqrd_dist_sum(P, best_fit_line)
+    return utils.best_fit_line_cost(P)
 
 def bicriteria (P,k):
     # sort array by first index (t) so segments will be continous
@@ -38,9 +37,9 @@ def bicriteria (P,k):
 
     # sum distances of k+1 min segments and make a list of point to delete from P to get P \ Q from the algo'
     rows_to_delete = []
-    for a in range(k+1):
+    for a in xrange(k+1):
         res = res + one_seg_res[a][0]
-        for b in range(m):  
+        for b in xrange(m):  
             rows_to_delete.append(one_seg_res[a][1]+b)
     
     # lines 10-11

@@ -2,6 +2,7 @@ import numpy as np
 import utils
 import ksegment
 import BiCritetria
+import BalancedPartition
 
 def main():
     # generate points
@@ -28,10 +29,12 @@ def main():
 
     P = np.c_[np.mgrid[1:N+1], data]
 
-    dividers = ksegment.k_segment(P, k)
-    bicriteria_est = BiCritetria.bicriteria(P,k)
-    print "BiCritetria estimated distance sum: ", bicriteria_est
-    utils.visualize_3d(P, dividers)
+    #dividers = ksegment.k_segment(P, k)
+    #bicriteria_est = BiCritetria.bicriteria(P,k)
+    #print "BiCritetria estimated distance sum: ", bicriteria_est
+    #utils.visualize_3d(P, dividers)
     
+    res = BalancedPartition.BalancedPartition(P, 1, 40)
+    return res
 
 main()

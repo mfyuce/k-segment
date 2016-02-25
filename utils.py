@@ -67,6 +67,6 @@ def visualize_3d (P, dividers):
 
     plt.show()
 
-#P = np.array([[0,0,0],[1,1,2],[2,2,4],[3,3,6],[4,4,8],[5,5,10],[6,6,12],[7,7,20]])
-#best_fit_line = calc_best_fit_line(P)
-#visualize_3d (P, best_fit_line)
+def best_fit_line_cost(P):
+    best_fit_line = calc_best_fit_line(P)
+    return sqrd_dist_sum(P, best_fit_line)
