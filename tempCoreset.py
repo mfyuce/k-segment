@@ -1,7 +1,11 @@
-﻿import numpy as np
+import numpy as np
 import math
-import random as rnd
 import utils
+
+def Coreset(P, k, eps):
+    h = bicriteria(P, k)
+    b = (eps**2 * h) / (100*k*np.log2(P.shape[0]))
+    return BalancedPartition(P, eps, b)
 
 def one_seg (P):
     return utils.best_fit_line_cost(P)
@@ -46,7 +50,23 @@ def bicriteria (P,k):
     P = np.delete(P, rows_to_delete, axis=0)
     return res + bicriteria(P, k)
 
-#p = [(0,2,2),(1,0,0),(5,0,1),(3,2,6),(2,0,0),(7,0,1),(10,4,7),(15,10,1),(4,9,2),(11,3,8),(12,6,5),(6,2,1),(8,3,4),(9,2,6),(13,7,8),(14,3,2),(16,9,9),(17,6,1),(18,3,3),
-#     (19,15,3),(20,7,8),(21,16,7),(22,30,18),(23,8,9),(24,1,1),(25,2,2),(26,3,3),(27,4,5),(28,8,10),(29,8,10),(30,8,10),(31,9,11),(32,15,7),(33,10,6),(34,5,5),(35,3,3),
-#     (36,12,12),(37,8,5),(38,12,1),(39,10,2)]
-#print bicriteria(p,3)
+def BalancedPartition(P, a, b):
+    Q = []
+    D = []
+    arbitrary_p = np.zeros_like(P[0])
+    arbitrary_p[0] = len(P) + 1
+    points = np.vstack((P, arbitrary_p))
+    n = P.shape[0]
+    for i in xrange(n):
+        Q.append(P[i])
+        cost = utils.best_fit_line_cost(np.asarray(Q))
+        if cost > b or i == (n - 1) :
+            T = Q[:-1]
+            C = [] # TODO 
+            g = utils.calc_best_fit_line(np.asarray(T))
+            b = i - len(T) + 1
+            e = i
+            D.append([C, g, b , e])
+            Q = [Q[-1]]
+    return D
+
