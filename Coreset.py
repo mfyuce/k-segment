@@ -10,7 +10,7 @@ def Coreset(P, k, eps):
 def one_seg (P):
     return utils.best_fit_line_cost(P)
 
-def bicriteria (P,k):
+def bicriteria(P,k):
     # sort array by first index (t) so segments will be continous
     P = np.array(sorted(P, key=lambda point: point[0]))
     #print "P = \n", P
@@ -62,7 +62,7 @@ def BalancedPartition(P, a, b):
         cost = utils.best_fit_line_cost(np.asarray(Q))
         if cost > b or i == (n - 1) :
             T = Q[:-1]
-            C = [] # TODO 
+            C = OneSegmentCorset(T)
             g = utils.calc_best_fit_line(np.asarray(T))
             b = i - len(T) + 1
             e = i
@@ -70,3 +70,33 @@ def BalancedPartition(P, a, b):
             Q = [Q[-1]]
     return D
 
+def OneSegmentCorset(P):
+    #add 1 to the first column
+    P = np.insert(P, 0, values=1, axis=1)
+    dimP = P.shape[1]
+    U, s, V = np.linalg.svd(P,full_matrices=False)
+    #reshape S
+    S = np.diag(s) 
+    #calculate SV
+    SV = np.dot(S, V)
+    u = SV[:,0] # u is leftmost column of SV
+    #line 5 of the algorithm - calculate Q 
+    q = np.identity(P.shape[1]) #q - temporary matrix to build an identity matrix with leftmost column - u
+    q[:,0] = u
+    Q, r = np.linalg.qr(q) #QR decomposition returns in Q what is requested
+    #calculate Y
+    Nu = np.linalg.norm(u) #normal of vector u
+    w = math.pow(Nu,2)/P.shape[1] #calculate w according to 
+    wY = 1/math.sqrt(P.shape[1]) #sqrt of normU^2/d+2/normU
+    y = np.identity(P.shape[1]) # t - temporary matrix to build an identity matrix with leftmost column - wY
+    y[:,0] = wY #set y's first column to be wY
+    # calculate all the vectors to be orthogonal to first vector
+    for i in range(1, P.shape[1]):
+        y[:,i] =y[:,i] -  np.dot(y[:,0],np.linalg.norm(y[:,i],axis=0))*np.linalg.norm(y[:,i],axis=0)
+    Y , r = np.linalg.qr(y) #compute Y with QR decompression - first column will not change - it is already normalized
+    #calculate YQTSVT
+    YQTSVT= np.dot(np.dot(np.dot(Y,Q.T),S),V.T)
+    YQTSVT= YQTSVT/math.sqrt(w)
+    #set b as described in the algorithm
+    B = YQTSVT[:,1:P.shape[1]]
+    return [B, w]

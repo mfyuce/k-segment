@@ -1,7 +1,6 @@
 import numpy as np
 import mpl_toolkits.mplot3d as m3d
 import matplotlib.pyplot as plt
-import BiCritetria
 
 '''
 calc_best_fit_line -
@@ -21,7 +20,7 @@ def sqrd_dist_sum(P, line):
     A = np.vstack([time_array, np.ones(len(time_array))]).T
     data = P[:,1:]
     projected_points = np.dot(A, line)
-    return sum(np.linalg.norm(data - projected_points, axis=1)**2)
+    return sum((np.linalg.norm(data - projected_points, axis=1))**2)
 
 def pt_on_line(x, line):
         coordinates = [x]
@@ -36,6 +35,14 @@ def lines_from_dividers(P, dividers):
         segment = P[dividers[i]-1:dividers[i+1],:]
         lines.append(calc_best_fit_line(segment))
     return lines
+
+#'''
+#cost - 
+#    input -
+#        P: set of points
+#        dividers: set of x value dividers that divide the data to k-segment
+#'''
+#def cost(P, dividers):
 
 def visualize_3d (P, dividers):
     first_index = P[0,0]
