@@ -71,32 +71,28 @@ def BalancedPartition(P, a, b):
     return D
 
 def OneSegmentCorset(P):
-    #add 1 to the first column
-    P = np.insert(P, 0, values=1, axis=1)
-    dimP = P.shape[1]
-    U, s, V = np.linalg.svd(P,full_matrices=False)
+    #add 1's to the first column
+    X = np.insert(P, 0, values=1, axis=1)
+    U, s, V = np.linalg.svd(X, full_matrices=False)
     #reshape S
     S = np.diag(s) 
     #calculate SV
-    SV = np.dot(S, V)
-    u = SV[:,0] # u is leftmost column of SV
-    #line 5 of the algorithm - calculate Q 
-    q = np.identity(P.shape[1]) #q - temporary matrix to build an identity matrix with leftmost column - u
+    SVt = np.dot(S, V)
+    u = SVt[:,0] # u is leftmost column of SVt
+    w = (np.linalg.norm(u)**2)/X.shape[1]
+    q = np.identity(X.shape[1]) #q - temporary matrix to build an identity matrix with leftmost column - u
     q[:,0] = u
-    Q, r = np.linalg.qr(q) #QR decomposition returns in Q what is requested
+    Q = np.linalg.qr(q)[0] #QR decomposition returns in Q what is requested
     #calculate Y
-    Nu = np.linalg.norm(u) #normal of vector u
-    w = math.pow(Nu,2)/P.shape[1] #calculate w according to 
-    wY = 1/math.sqrt(P.shape[1]) #sqrt of normU^2/d+2/normU
-    y = np.identity(P.shape[1]) # t - temporary matrix to build an identity matrix with leftmost column - wY
-    y[:,0] = wY #set y's first column to be wY
-    # calculate all the vectors to be orthogonal to first vector
-    for i in range(1, P.shape[1]):
-        y[:,i] =y[:,i] -  np.dot(y[:,0],np.linalg.norm(y[:,i],axis=0))*np.linalg.norm(y[:,i],axis=0)
-    Y , r = np.linalg.qr(y) #compute Y with QR decompression - first column will not change - it is already normalized
-    #calculate YQTSVT
-    YQTSVT= np.dot(np.dot(np.dot(Y,Q.T),S),V.T)
-    YQTSVT= YQTSVT/math.sqrt(w)
-    #set b as described in the algorithm
-    B = YQTSVT[:,1:P.shape[1]]
+    y = np.identity(X.shape[1]) # y - temporary matrix to build an identity matrix with leftmost column
+    y[:,0] = math.sqrt(w)/np.linalg.norm(u) #set y's first column to be sqrt of w divided by u's normal
+    # set all the vectors to be orthogonal to the first vector
+    for i in xrange(1, X.shape[1]):
+        y[:,i] = y[:,i] - np.dot(y[:,0],np.linalg.norm(y[:,i],axis=0))*np.linalg.norm(y[:,i],axis=0)
+    #compute Y with QR decompression - first column will not change - it is already normalized
+    Y = np.linalg.qr(y)[0] 
+    YQtSVt= np.dot(np.dot(Y,Q.T),SVt)
+    YQtSVt= YQtSVt/math.sqrt(w)
+    #set B to the d+1 rightmost columns
+    B = YQtSVt[:,1:]
     return [B, w]

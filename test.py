@@ -22,14 +22,20 @@ def example1():
     #y += np.random.normal(size=y.shape) * 4
     return np.c_[x,y]
 
+def example2():
+    x1 = np.mgrid[1:9:100j]
+    y1 = np.mgrid[-5:3:100j]
+    x1 += np.random.normal(size=x1.shape) * 4
+    return np.c_[x1,y1]
+
 def main():
     # generate points
-    N = 140
+    N = 100
     dimension = 2
     k = 1
 
-    data = random_data(N, dimension)
-    #data = example1()
+    #data = random_data(N, dimension)
+    data = example2()
 
     P = np.c_[np.mgrid[1:N+1], data]
 
