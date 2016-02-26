@@ -10,10 +10,13 @@ calc_best_fit_line -
         C[i,1] is the intercept with the i-th dimensional axis
 '''
 def calc_best_fit_line (P):
-    time_array = P[:,0]
-    A = np.vstack([time_array, np.ones(len(time_array))]).T
-    data = P[:,1:]
-    return np.linalg.lstsq(A, data)[0]
+    try :
+        time_array = P[:,0]
+        A = np.vstack([time_array, np.ones(len(time_array))]).T
+        data = P[:,1:]
+        return np.linalg.lstsq(A, data)[0]
+    except:
+        print 1
 
 def sqrd_dist_sum(P, line):
     time_array = P[:,0]

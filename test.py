@@ -30,18 +30,17 @@ def example2():
 
 def main():
     # generate points
-    N = 100
+    N = 10000
     dimension = 2
     k = 1
 
-    #data = random_data(N, dimension)
-    data = example2()
+    data = random_data(N, dimension)
+    #data = example1()
 
     P = np.c_[np.mgrid[1:N+1], data]
 
-    one_segment_coreset = Coreset.OneSegmentCorset(P)
-    print "coreset cost :" ,utils.best_fit_line_cost(one_segment_coreset[0])*one_segment_coreset[1]
-    print "real cost :" , utils.best_fit_line_cost(P)
+    coreset = Coreset.coreset(P, k, 5)
+    print 1
     #bicriteria_est = Coreset.bicriteria(P,k)
     #print "BiCritetria estimated distance sum: ", bicriteria_est
     #dividers = ksegment.k_segment(P, k)

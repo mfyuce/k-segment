@@ -2,8 +2,8 @@ import numpy as np
 import math
 import utils
 
-def Coreset(P, k, eps):
-    h = bicriteria(P, k)
+def coreset(P, k, eps):
+    h = bicriteria(P, k) *10 # TODO temporary multiply by 2
     b = (eps**2 * h) / (100*k*np.log2(P.shape[0]))
     return BalancedPartition(P, eps, b)
 
@@ -17,7 +17,7 @@ def bicriteria(P,k):
 
     # Lines  1 - 3
     if (len(P) <= (2 * k + 1)):
-        return one_seg(P)
+        return 0
 
     # line 5 - 9
     m = int(math.floor(len(P)/(2*k)))
@@ -29,7 +29,7 @@ def bicriteria(P,k):
     
     # partition to 2k segments and call 1-segment for each
     while (i < len(P)):
-        one_seg_res.append((one_seg(P[i:j,1:]), int(i)))
+        one_seg_res.append((one_seg(P[i:j,:]), int(i)))
         i = i + m
         j = j + m
 
@@ -61,13 +61,14 @@ def BalancedPartition(P, a, b):
         Q.append(P[i])
         cost = utils.best_fit_line_cost(np.asarray(Q))
         if cost > b or i == (n - 1) :
-            T = Q[:-1]
-            C = OneSegmentCorset(T)
-            g = utils.calc_best_fit_line(np.asarray(T))
-            b = i - len(T) + 1
-            e = i
-            D.append([C, g, b , e])
-            Q = [Q[-1]]
+            if len(Q[:-1]) > 8:  # temporary condition, beta isn't good enough currently
+                T = Q[:-1]
+                C = OneSegmentCorset(T)
+                g = utils.calc_best_fit_line(np.asarray(T))
+                b = i - len(T) + 1
+                e = i
+                D.append([C, g, b , e])
+                Q = [Q[-1]]
     return D
 
 def OneSegmentCorset(P):
