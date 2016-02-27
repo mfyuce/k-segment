@@ -80,3 +80,7 @@ def visualize_3d (P, dividers):
 def best_fit_line_cost(P):
     best_fit_line = calc_best_fit_line(P)
     return sqrd_dist_sum(P, best_fit_line)
+
+# Corollary 11
+def s_func(i, n):
+    return max(4./i, 4./(n-i+1))

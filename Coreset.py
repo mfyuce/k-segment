@@ -3,7 +3,7 @@ import math
 import utils
 
 def coreset(P, k, eps):
-    h = bicriteria(P, k) *10 # TODO temporary multiply by 2
+    h = bicriteria(P, k) *10 # TODO temporary multiply bicriteria gives wrong est
     b = (eps**2 * h) / (100*k*np.log2(P.shape[0]))
     return BalancedPartition(P, eps, b)
 
@@ -11,42 +11,28 @@ def one_seg (P):
     return utils.best_fit_line_cost(P)
 
 def bicriteria(P,k):
-    # sort array by first index (t) so segments will be continous
-    P = np.array(sorted(P, key=lambda point: point[0]))
-    #print "P = \n", P
-
-    # Lines  1 - 3
     if (len(P) <= (2 * k + 1)):
         return 0
-
-    # line 5 - 9
     m = int(math.floor(len(P)/(2*k)))
     i = 0
     j = m
-
     # one_seg_res will hold segment starting index and result (squred distance sum)
     one_seg_res = []
-    
     # partition to 2k segments and call 1-segment for each
     while (i < len(P)):
         one_seg_res.append((one_seg(P[i:j,:]), int(i)))
         i = i + m
         j = j + m
-
     #sort result
     one_seg_res = sorted(one_seg_res, key=lambda res: res[0])
-
     # res = the distances of the min k+1 segments
     res = 0
-
     # sum distances of k+1 min segments and make a list of point to delete from P to get P \ Q from the algo'
     rows_to_delete = []
     for a in xrange(k+1):
         res = res + one_seg_res[a][0]
         for b in xrange(m):  
             rows_to_delete.append(one_seg_res[a][1]+b)
-    
-    # lines 10-11
     P = np.delete(P, rows_to_delete, axis=0)
     return res + bicriteria(P, k)
 
@@ -61,7 +47,7 @@ def BalancedPartition(P, a, b):
         Q.append(P[i])
         cost = utils.best_fit_line_cost(np.asarray(Q))
         if cost > b or i == (n - 1) :
-            if len(Q[:-1]) > 8:  # temporary condition, beta isn't good enough currently
+            if len(Q[:-1]) > 8:  # TODO temporary condition, beta isn't good enough currently
                 T = Q[:-1]
                 C = OneSegmentCorset(T)
                 g = utils.calc_best_fit_line(np.asarray(T))
@@ -97,3 +83,21 @@ def OneSegmentCorset(P):
     #set B to the d+1 rightmost columns
     B = YQtSVt[:,1:]
     return [B, w]
+
+def PiecewiseCoreset(n, s, eps):
+    s_arr = [s(i, n) for i in xrange(1, n+1)]
+    t = sum(s_arr)
+    B = []
+    b_list = []
+    W = np.zeros(n)
+    for i in xrange(1, n+1):
+        b = math.ceil(sum(s_arr[0:i])/(t*eps))
+        if b not in b_list:
+            B.append(i)
+        b_list.append(b)
+    for j in B:
+        I = [i+1 for i, b in enumerate(b_list) if b == b_list[j-1]]
+        print 1
+        W[j-1]=(1./s_arr[j-1])*sum([s_arr[i-1] for i in I])
+    return W
+    

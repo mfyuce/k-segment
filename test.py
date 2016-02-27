@@ -30,7 +30,7 @@ def example2():
 
 def main():
     # generate points
-    N = 10000
+    N = 100
     dimension = 2
     k = 1
 
@@ -39,7 +39,8 @@ def main():
 
     P = np.c_[np.mgrid[1:N+1], data]
 
-    coreset = Coreset.coreset(P, k, 5)
+    #coreset = Coreset.coreset(P, k, 5)
+    W = Coreset.PiecewiseCoreset(N, utils.s_func, 0.1)
     print 1
     #bicriteria_est = Coreset.bicriteria(P,k)
     #print "BiCritetria estimated distance sum: ", bicriteria_est
