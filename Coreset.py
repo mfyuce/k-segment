@@ -2,8 +2,16 @@ import numpy as np
 import math
 import utils
 
-def coreset(P, k, eps):
-    h = bicriteria(P, k) *10 # TODO temporary multiply bicriteria gives wrong est
+class coreset:
+    def __init__(self, C, W, g, b, e):
+        self.C = C
+        self.W = W
+        self.g = g
+        self.b = b
+        self.e = e
+
+def build_coreset(P, k, eps):
+    h = bicriteria(P, k)*10 # TODO temporary multiply bicriteria gives wrong est
     b = (eps**2 * h) / (100*k*np.log2(P.shape[0]))
     return BalancedPartition(P, eps, b)
 
@@ -47,13 +55,13 @@ def BalancedPartition(P, a, b):
         Q.append(P[i])
         cost = utils.best_fit_line_cost(np.asarray(Q))
         if cost > b or i == (n - 1) :
-            if len(Q[:-1]) > 8:  # TODO temporary condition, beta isn't good enough currently
+            if len(Q[:-1]) > len(Q[0]):  # TODO temporary condition, beta isn't good enough currently
                 T = Q[:-1]
                 C = OneSegmentCorset(T)
                 g = utils.calc_best_fit_line(np.asarray(T))
                 b = i - len(T) + 1
                 e = i
-                D.append([C, g, b , e])
+                D.append(coreset(C[0], C[1], g, b , e))
                 Q = [Q[-1]]
     return D
 

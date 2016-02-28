@@ -6,15 +6,14 @@ import Coreset
 def random_data(N, dimension):
     return np.random.random_integers(0, 100, (N,dimension))
 
-def example1():
+def example1(n):
     #3 straight lines with noise
-    # NOTE : set N to 140
-    x1 = np.mgrid[1:9:40j]
-    y1 = np.mgrid[-5:3:40j]
-    x2 = np.mgrid[23:90:80j]
-    y2 = np.mgrid[43:0:80j]
-    x3 = np.mgrid[80:60:20j]
-    y3 = np.mgrid[90:100:20j]
+    x1 = np.mgrid[1:9:2*n/6j]
+    y1 = np.mgrid[-5:3:2*n/6j]
+    x2 = np.mgrid[23:90:n/2j]
+    y2 = np.mgrid[43:0:n/2j]
+    x3 = np.mgrid[80:60:n/6j]
+    y3 = np.mgrid[90:100:n/6j]
 
     x = np.r_[x1,x2,x3]
     y = np.r_[y1,y2,y3]
@@ -30,21 +29,22 @@ def example2():
 
 def main():
     # generate points
-    N = 100
+    N = 60000
     dimension = 2
-    k = 1
+    k = 3
 
-    data = random_data(N, dimension)
-    #data = example1()
+    #data = random_data(N, dimension)
+    # n that divides by 6
+    data = example1(N)
 
     P = np.c_[np.mgrid[1:N+1], data]
 
-    #coreset = Coreset.coreset(P, k, 5)
-    W = Coreset.PiecewiseCoreset(N, utils.s_func, 0.1)
-    print 1
+    coreset = Coreset.build_coreset(P, k, 8)
+    dividers = ksegment.coreset_k_segment(coreset, k)
+    #dividers = ksegment.k_segment(P, k)
+    #W = Coreset.PiecewiseCoreset(N, utils.s_func, 0.1)
     #bicriteria_est = Coreset.bicriteria(P,k)
     #print "BiCritetria estimated distance sum: ", bicriteria_est
-    #dividers = ksegment.k_segment(P, k)
-    #utils.visualize_3d(P, dividers)
+    utils.visualize_3d(P, dividers)
 
 main()
