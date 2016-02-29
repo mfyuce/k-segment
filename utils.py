@@ -10,7 +10,7 @@ calc_best_fit_line -
         C[i,1] is the intercept with the i-th dimensional axis
 '''
 def calc_best_fit_line (P):
-    try :
+    try:
         time_array = P[:,0]
         A = np.vstack([time_array, np.ones(len(time_array))]).T
         data = P[:,1:]
@@ -19,11 +19,16 @@ def calc_best_fit_line (P):
         print 1
 
 def sqrd_dist_sum(P, line):
-    time_array = P[:,0]
-    A = np.vstack([time_array, np.ones(len(time_array))]).T
-    data = P[:,1:]
-    projected_points = np.dot(A, line)
-    return sum((np.linalg.norm(data - projected_points, axis=1))**2)
+	try:
+		if P.shape[0]==1:
+			P = np.vstack([P,])
+		time_array = P[:,0]
+		A = np.vstack([time_array, np.ones(len(time_array))]).T
+		data = P[:,1:]
+		projected_points = np.dot(A, line)
+		return sum((np.linalg.norm(data - projected_points, axis=1))**2)
+	except: 
+		print P
 
 def pt_on_line(x, line):
         coordinates = [x]
