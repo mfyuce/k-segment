@@ -41,7 +41,6 @@ def calc_partitions(prep_dist, n, k):
     for i in xrange(n):
         for j in xrange(i+1, n):
             update_node_info(nodes, prep_dist, i, j)
-	print nodes
     return nodes
 
 def get_x_val_dividers(p, k, nodes):
