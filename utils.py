@@ -34,18 +34,9 @@ def pt_on_line(x, line):
 def lines_from_dividers(P, dividers):
     lines = []
     for i in xrange(len(dividers)-1):
-        # dividers[i]-1 because signal index starts from 1 not 0
         segment = P[dividers[i]-1:dividers[i+1],:]
         lines.append(calc_best_fit_line(segment))
     return lines
-
-#'''
-#cost - 
-#    input -
-#        P: set of points
-#        dividers: set of x value dividers that divide the data to k-segment
-#'''
-#def cost(P, dividers):
 
 def visualize_3d (P, dividers):
     first_index = P[0,0]
@@ -53,15 +44,11 @@ def visualize_3d (P, dividers):
     line_pts_list = []
     all_sgmnt_sqrd_dist_sum = 0
     for i in xrange(len(dividers)-1):
-        # dividers[i]-1 because signal index starts from 1
         line_start_arr_index = dividers[i]-1
-        line_end_arr_index = dividers[i+1]-2
+        line_end_arr_index = dividers[i+1]-1 if i != len(dividers)-2 else dividers[i+1]
         segment = P[line_start_arr_index:line_end_arr_index,:]
         best_fit_line = calc_best_fit_line(segment)
-        if (i == len(dividers)-2):
-            line_pts_list.append([pt_on_line(dividers[i], best_fit_line),pt_on_line(dividers[i+1], best_fit_line)])
-        else:
-            line_pts_list.append([pt_on_line(dividers[i], best_fit_line),pt_on_line(dividers[i+1]-1, best_fit_line)])
+        line_pts_list.append([pt_on_line(dividers[i], best_fit_line),pt_on_line(dividers[i+1] - (1 if i != len(dividers)-2 else 0), best_fit_line)])
         all_sgmnt_sqrd_dist_sum += sqrd_dist_sum(segment, best_fit_line)
     print "real squared distance sum: ", all_sgmnt_sqrd_dist_sum
 

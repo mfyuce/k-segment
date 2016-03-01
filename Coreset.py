@@ -4,11 +4,11 @@ import utils
 
 class coreset:
     def __init__(self, C, W, g, b, e):
-        self.C = C
-        self.W = W
-        self.g = g
-        self.b = b
-        self.e = e
+        self.C = C # 1-segment coreset 
+        self.W = W # 1-segment coreset weight 
+        self.g = g # best line
+        self.b = b # coreset beginning index
+        self.e = e # coreset ending index
 
 def build_coreset(P, k, eps):
     h = bicriteria(P, k)*10 # TODO temporary multiply bicriteria gives wrong est
@@ -50,19 +50,23 @@ def BalancedPartition(P, a, b):
     arbitrary_p = np.zeros_like(P[0])
     arbitrary_p[0] = len(P) + 1
     points = np.vstack((P, arbitrary_p))
-    n = P.shape[0]
-    for i in xrange(n):
-        Q.append(P[i])
+    n = points.shape[0]
+    for i in xrange(1, n+1):
+        Q.append(points[i-1])
         cost = utils.best_fit_line_cost(np.asarray(Q))
-        if cost > b or i == (n - 1) :
-            if len(Q[:-1]) > len(Q[0]):  # TODO temporary condition, beta isn't good enough currently
-                T = Q[:-1]
+        if cost > b or i == n:
+            # if current number of points can be turned into a coreset
+            T = Q[:-1]
+            if len(Q[:-1]) > len(Q[0]):
                 C = OneSegmentCorset(T)
-                g = utils.calc_best_fit_line(np.asarray(T))
-                b = i - len(T) + 1
-                e = i
-                D.append(coreset(C[0], C[1], g, b , e))
-                Q = [Q[-1]]
+            # if small number of points
+            else:                       
+                C = [np.array(Q[:-1]), 1]
+            g = utils.calc_best_fit_line(np.asarray(T))
+            b = i - len(Q[:-1])
+            e = i - 1
+            D.append(coreset(C[0], C[1], g, b, e))
+            Q = [Q[-1]]
     return D
 
 def OneSegmentCorset(P):

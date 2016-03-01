@@ -29,12 +29,12 @@ def example2():
 
 def main():
     # generate points
-    N = 60000
+    N = 600
     dimension = 2
     k = 3
 
     #data = random_data(N, dimension)
-    # n that divides by 6
+    # for example1 choose N that divides by 6
     data = example1(N)
 
     P = np.c_[np.mgrid[1:N+1], data]
