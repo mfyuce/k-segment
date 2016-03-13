@@ -50,7 +50,7 @@ def visualize_3d (P, dividers):
         best_fit_line = calc_best_fit_line(segment)
         line_pts_list.append([pt_on_line(dividers[i], best_fit_line),pt_on_line(dividers[i+1] - (1 if i != len(dividers)-2 else 0), best_fit_line)])
         all_sgmnt_sqrd_dist_sum += sqrd_dist_sum(segment, best_fit_line)
-    print "real squared distance sum: ", all_sgmnt_sqrd_dist_sum
+    #print "real squared distance sum: ", all_sgmnt_sqrd_dist_sum
 
     ax = m3d.Axes3D(plt.figure())
     ax.scatter3D(*P.T)

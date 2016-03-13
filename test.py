@@ -32,6 +32,7 @@ def main():
     N = 600
     dimension = 2
     k = 3
+    epsilon = 0.1
 
     #data = random_data(N, dimension)
     # for example1 choose N that divides by 6
@@ -39,7 +40,7 @@ def main():
 
     P = np.c_[np.mgrid[1:N+1], data]
 
-    coreset = Coreset.build_coreset(P, k, 8)
+    coreset = Coreset.build_coreset(P, k, epsilon)
     dividers = ksegment.coreset_k_segment(coreset, k)
     #dividers = ksegment.k_segment(P, k)
     #W = Coreset.PiecewiseCoreset(N, utils.s_func, 0.1)

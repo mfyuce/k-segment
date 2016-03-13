@@ -11,7 +11,7 @@ class coreset:
         self.e = e # coreset ending index
 
 def build_coreset(P, k, eps):
-    h = bicriteria(P, k)*10 # TODO temporary multiply bicriteria gives wrong est
+    h = bicriteria(P, k)
     b = (eps**2 * h) / (100*k*np.log2(P.shape[0]))
     return BalancedPartition(P, eps, b)
 
