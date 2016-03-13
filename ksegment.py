@@ -22,19 +22,20 @@ class nodes_info:
     
 def update_node_info(nodes, prep, cur_n, next_n):
     # update the path from the first node to next_n (path len 1)
-    nodes.info[next_n, 0, 0] = prep[0 ,next_n]
-    nodes.info[next_n ,1, 0] = 0
+    if cur_n == 0:
+        nodes.info[next_n, 0, 0] = prep[cur_n ,next_n]
+        nodes.info[next_n ,1, 0] = cur_n
     # update the path from cur_n to next_n
-    for i, cur_cost in np.ndenumerate(nodes.info[next_n, 0, 1:]):
-        index = i[0]+1
-        # if such path doesn't exist
-        if (float("inf") == nodes.info[cur_n, 0, index-1] or 
-            float("inf") == prep[cur_n, next_n]):
-            continue
-        updt_cost = nodes.info[cur_n, 0, index-1] + prep[cur_n, next_n]
-        if (updt_cost < cur_cost):
-            nodes.info[next_n, 0, index] = updt_cost
-            nodes.info[next_n, 1, index] = cur_n
+    else:
+        # i - the current index of the k-array holding the costs of travel with i steps to each point
+        for i, cur_cost in np.ndenumerate(nodes.info[next_n, 0, 1:]):
+            index = i[0]+1
+            # updated cost is the cost to get from the first point to the point previous to cur_n
+            # plus the cost from cur_n to next_n, since a point can belong to one segment only.
+            updt_cost = nodes.info[cur_n-1, 0, index-1] + prep[cur_n, next_n]
+            if (updt_cost < cur_cost):
+                nodes.info[next_n, 0, index] = updt_cost
+                nodes.info[next_n, 1, index] = cur_n
 
 def calc_partitions(prep_dist, n, k):
     nodes = nodes_info(n, k)
@@ -52,13 +53,18 @@ def get_x_val_dividers(p, k, nodes):
         result = np.insert(result, 0, x_value)
     return result
 
+# function to back-trace and figure out the dividers from the result of the dynamic-programming
 def get_x_val_dividers_coreset(D, k, nodes):
-    next = len(nodes.info) - 1
-    result = np.array(D[next].e)
+    # index of the current node to back-trace from
+    cur_end_segment_node = len(nodes.info) - 1
+    result = np.array(D[cur_end_segment_node].e)
     for i in reversed(xrange(0,k)):
-        next = int(nodes.info[next, 1, i])
-        x_value = D[next].b
+        # get the start of the segment coreset index from the populated nodes.info
+        cur_end_segment_node = int(nodes.info[cur_end_segment_node, 1, i])
+        x_value = D[cur_end_segment_node].b
         result = np.insert(result, 0, x_value)
+        # since the next divider will be written on the previous node's result array
+        cur_end_segment_node -= 1
     return result
 
 def calc_prep_dist(P):
