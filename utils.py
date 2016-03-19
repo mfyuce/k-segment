@@ -16,14 +16,17 @@ def calc_best_fit_line (P):
         data = P[:,1:]
         return np.linalg.lstsq(A, data)[0]
     except:
-        print 1
+        print "error in calc_best_fit_line"
 
 def sqrd_dist_sum(P, line):
-    time_array = P[:,0]
-    A = np.vstack([time_array, np.ones(len(time_array))]).T
-    data = P[:,1:]
-    projected_points = np.dot(A, line)
-    return sum((np.linalg.norm(data - projected_points, axis=1))**2)
+    try:
+        time_array = P[:,0]
+        A = np.vstack([time_array, np.ones(len(time_array))]).T
+        data = P[:,1:]
+        projected_points = np.dot(A, line)
+        return sum((np.linalg.norm(data - projected_points, axis=1))**2)
+    except:
+        print "error in sqrd_dist_sum"
 
 def pt_on_line(x, line):
         coordinates = [x]

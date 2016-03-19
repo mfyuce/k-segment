@@ -40,7 +40,7 @@ def update_node_info(nodes, prep, cur_n, next_n):
 def calc_partitions(prep_dist, n, k):
     nodes = nodes_info(n, k)
     for i in xrange(n):
-        for j in xrange(i+1, n):
+        for j in xrange(i, n):
             update_node_info(nodes, prep_dist, i, j)
     return nodes
 

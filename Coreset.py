@@ -54,7 +54,7 @@ def BalancedPartition(P, a, b):
     for i in xrange(1, n+1):
         Q.append(points[i-1])
         cost = utils.best_fit_line_cost(np.asarray(Q))
-        if cost > b or i == n:
+        if (cost > b or i == n) and len(Q) > 2:
             # if current number of points can be turned into a coreset
             T = Q[:-1]
             if len(Q[:-1]) > len(Q[0]):
