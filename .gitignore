@@ -55,3 +55,5 @@ k-segment.pyproj
 *.pyproj
 k-segment.pyproj
 *.pyproj
+
+.idea/*

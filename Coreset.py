@@ -45,10 +45,10 @@ def bicriteria(P, k, is_coreset=False):
     res = 0
     # sum distances of k+1 min segments and make a list of point to delete from P to get P \ Q from the algo'
     rows_to_delete = []
-    for a in xrange(k + 1):
-        res = res + one_seg_res[a][0]
-        for b in xrange(m):
-            rows_to_delete.append(one_seg_res[a][1] + b)
+    for i in xrange(k + 1):
+        res += one_seg_res[i][0]
+        for j in xrange(m):
+            rows_to_delete.append(one_seg_res[i][1] + j)
     P = np.delete(P, rows_to_delete, axis=0)
     return res + bicriteria(P, k)
 
@@ -107,6 +107,36 @@ def OneSegmentCorset(P):
     return [B, w]
 
 
+def OneSegmentCorset_weights(C1, C2):
+    # add 1's to the first column
+    A = np.insert(C1[0], 0, values=np.sqrt(C1[1]), axis=1)
+    B = np.insert(C2[0], 0, values=np.sqrt(C2[1]), axis=1)
+    X = np.vstack([A, B])
+    U, s, V = np.linalg.svd(X, full_matrices=False)
+    # reshape S
+    S = np.diag(s)
+    # calculate SV
+    SVt = np.dot(S, V)
+    u = SVt[:, 0]  # u is leftmost column of SVt
+    w = (np.linalg.norm(u) ** 2) / X.shape[1]
+    q = np.identity(X.shape[1])  # q - temporary matrix to build an identity matrix with leftmost column - u
+    q[:, 0] = u
+    Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
+    # calculate Y
+    y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
+    y[:, 0] = math.sqrt(w) / np.linalg.norm(u)  # set y's first column to be sqrt of w divided by u's normal
+    # set all the vectors to be orthogonal to the first vector
+    for i in xrange(1, X.shape[1]):
+        y[:, i] = y[:, i] - np.dot(y[:, 0], np.linalg.norm(y[:, i], axis=0)) * np.linalg.norm(y[:, i], axis=0)
+    # compute Y with QR decompression - first column will not change - it is already normalized
+    Y = np.linalg.qr(y)[0]
+    YQtSVt = np.dot(np.dot(Y, Q.T), SVt)
+    YQtSVt = YQtSVt / math.sqrt(w)
+    # set B to the d+1 rightmost columns
+    B = YQtSVt[:, 1:]
+    return [B, w]
+
+
 def PiecewiseCoreset(n, s, eps):
     s_arr = [s(i, n) for i in xrange(1, n + 1)]
     t = sum(s_arr)
@@ -123,3 +153,4 @@ def PiecewiseCoreset(n, s, eps):
         print 1
         W[j - 1] = (1. / s_arr[j - 1]) * sum([s_arr[i - 1] for i in I])
     return W
+

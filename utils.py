@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sc
 import mpl_toolkits.mplot3d as m3d
 import matplotlib.pyplot as plt
 
@@ -11,9 +12,44 @@ calc_best_fit_line -
 '''
 def calc_best_fit_line(P):
     try:
+        n = len(P)
         time_array = P[:, 0]
-        A = np.vstack([time_array, np.ones(len(time_array))]).T
+        A = np.vstack([time_array, np.ones(n)]).T
         data = P[:, 1:]
+        return np.linalg.lstsq(A, data)[0]
+    except:
+        print "error in calc_best_fit_line"
+
+
+def calc_best_fit_line(P):
+    n = len(P)
+    time_array = P[:, 0]
+    A = np.vstack([time_array, np.ones(n)]).T
+    data = P[:, 1:]
+    return np.linalg.lstsq(A, data)[0]
+
+
+def calc_best_fit_line_coreset(C1, C2):
+    try:
+        n1 = len(C1[0])
+        n2 = len(C2[0])
+        time_weight_array1 = np.vstack([C1[0][:, 0], np.full(n1, C1[1])])
+        time_weight_array2 = np.vstack([C2[0][:, 0], np.full(n2, C2[1])])
+        A = np.hstack([time_weight_array1, time_weight_array2]).T
+        data = np.vstack([C1[0][:, 1:], C2[0][:, 1:]])
+        return np.linalg.lstsq(A, data)[0]
+    except:
+        print "error in calc_best_fit_line"
+
+
+def calc_best_fit_line_coreset_optimize(C1, C2):
+    try:
+        n1 = len(C1[0])
+        n2 = len(C2[0])
+        time_weight_array1 = np.vstack([C1[0][:, 0], np.ones(n1)])
+        time_weight_array2 = np.vstack([C2[0][:, 0], np.ones(n2)])
+        A = np.hstack([time_weight_array1, time_weight_array2]).T
+        data = np.vstack([C1[0][:, 1:], C2[0][:, 1:]])
         return np.linalg.lstsq(A, data)[0]
     except:
         print "error in calc_best_fit_line"
@@ -76,8 +112,3 @@ def visualize_3d(P, dividers):
 def best_fit_line_cost(P, is_coreset=False):
     best_fit_line = calc_best_fit_line(P)
     return sqrd_dist_sum(P, best_fit_line)
-
-
-# Corollary 11
-def s_func(i, n):
-    return max(4. / i, 4. / (n - i + 1))
