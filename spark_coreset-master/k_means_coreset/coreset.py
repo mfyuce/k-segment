@@ -11,7 +11,7 @@ class Coreset():
         if weights is not None:
             self.w = weights
         else:
-            self.w = np.ones(points.shape[0],dtype=np.float64)
+            self.w = np.ones(points.shape[0], dtype=np.float64)
 
     def _find_cluster_size(self, c):
         counts = np.bincount(c, self.w)

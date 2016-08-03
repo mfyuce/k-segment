@@ -19,7 +19,8 @@ class nodes_info:
         self.info = np.zeros((n, 2, k))
         for i in xrange(n):
             self.info[i][0] = float("inf")
-    
+
+
 def update_node_info(nodes, prep, cur_n, next_n):
     # update the path from the first node to next_n (path len 1)
     if cur_n == 0:
@@ -37,12 +38,14 @@ def update_node_info(nodes, prep, cur_n, next_n):
                 nodes.info[next_n, 0, index] = updt_cost
                 nodes.info[next_n, 1, index] = cur_n
 
+
 def calc_partitions(prep_dist, n, k):
     nodes = nodes_info(n, k)
     for i in xrange(n):
         for j in xrange(i, n):
             update_node_info(nodes, prep_dist, i, j)
     return nodes
+
 
 def get_x_val_dividers(p, k, nodes):
     next = len(nodes.info) - 1
@@ -52,6 +55,7 @@ def get_x_val_dividers(p, k, nodes):
         x_value = p[next][0]
         result = np.insert(result, 0, x_value)
     return result
+
 
 # function to back-trace and figure out the dividers from the result of the dynamic-programming
 def get_x_val_dividers_coreset(D, k, nodes):
@@ -67,6 +71,7 @@ def get_x_val_dividers_coreset(D, k, nodes):
         cur_end_segment_node -= 1
     return result
 
+
 def calc_prep_dist(P):
     prep_dist = np.full((len(P), len(P)),float("inf"))
     for index,value in np.ndenumerate(prep_dist):
@@ -76,6 +81,7 @@ def calc_prep_dist(P):
             prep_dist[index] = utils.sqrd_dist_sum(segment, best_fit_line)
     return prep_dist
 
+
 def k_segment(P, k):
     prep_dist = calc_prep_dist(P)
     #print "distances for each block:\n%s\n" % prep_dist
@@ -84,6 +90,7 @@ def k_segment(P, k):
     dividers = get_x_val_dividers(P, k,result)
     #print "the x values that divivde the pointset to k segments are:\n%s" % dividers
     return dividers
+
 
 def calc_coreset_prep_dist(D):
     prep_dist = np.full((len(D), len(D)), float("inf"))
@@ -104,6 +111,7 @@ def calc_coreset_prep_dist(D):
                 fitting_cost += utils.sqrd_dist_sum(C[i], best_fit_line)*W[i]
             prep_dist[first_coreset, second_coreset] = fitting_cost
     return prep_dist
+
 
 def coreset_k_segment(D, k):
     prep_dist = calc_coreset_prep_dist(D)

@@ -29,7 +29,7 @@ if __name__ == "__main__":
     def readPointBatch(Int,iterator):
         return [(Int/2, [pd.read_csv(StringIO("\n".join(iterator)), header=None, delim_whitespace=True,dtype=np.float64).as_matrix(), None])]
 
-    def merge(a ,b):
+    def merge(a, b):
         points = np.vstack((a[0], b[0]))
         weights = None
         if a[1] is None and b[1] is not None:
