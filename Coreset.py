@@ -90,7 +90,7 @@ def OneSegmentCorset(P):
     u = SVt[:, 0]  # u is leftmost column of SVt
     w = (np.linalg.norm(u) ** 2) / X.shape[1]
     q = np.identity(X.shape[1])  # q - temporary matrix to build an identity matrix with leftmost column - u
-    q[:, 0] = u
+    q[:, 0] = u / np.linalg.norm(u)
     Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
     # calculate Y
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
