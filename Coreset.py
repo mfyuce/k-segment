@@ -90,14 +90,11 @@ def OneSegmentCorset(P):
     u = SVt[:, 0]  # u is leftmost column of SVt
     w = (np.linalg.norm(u) ** 2) / X.shape[1]
     q = np.identity(X.shape[1])  # q - temporary matrix to build an identity matrix with leftmost column - u
-    q[:, 0] = u / np.linalg.norm(u)
+    q[:, 0] = u / np.linalg.norm(u)  # TODO verify
     Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
     # calculate Y
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
     y[:, 0] = math.sqrt(w) / np.linalg.norm(u)  # set y's first column to be sqrt of w divided by u's normal
-    # set all the vectors to be orthogonal to the first vector
-    for i in xrange(1, X.shape[1]):
-        y[:, i] = y[:, i] - np.dot(y[:, 0], np.linalg.norm(y[:, i], axis=0)) * np.linalg.norm(y[:, i], axis=0)
     # compute Y with QR decompression - first column will not change - it is already normalized
     Y = np.linalg.qr(y)[0]
     YQtSVt = np.dot(np.dot(Y, Q.T), SVt)
@@ -153,4 +150,3 @@ def PiecewiseCoreset(n, s, eps):
         print 1
         W[j - 1] = (1. / s_arr[j - 1]) * sum([s_arr[i - 1] for i in I])
     return W
-
