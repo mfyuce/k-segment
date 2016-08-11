@@ -21,23 +21,27 @@ def calc_best_fit_line(P):
         print "error in calc_best_fit_line"
 
 
-def calc_best_fit_line(P):
-    n = len(P)
-    time_array = P[:, 0]
-    A = np.vstack([time_array, np.ones(n)]).T
-    data = P[:, 1:]
-    return np.linalg.lstsq(A, data)[0]
+def calc_best_fit_line_polyfit(P):
+    try:
+        n = len(P)
+        time_array = P[:, 0]
+        # A = np.vstack([time_array, np.ones(n)]).T
+        data = P[:, 1:]
+        return np.polyfit(time_array, data, 1)
+    except:
+        print "error in calc_best_fit_line"
 
 
 def calc_best_fit_line_coreset(C1, C2):
     try:
         n1 = len(C1[0])
         n2 = len(C2[0])
-        time_weight_array1 = np.vstack([C1[0][:, 0], np.full(n1, C1[1])])
-        time_weight_array2 = np.vstack([C2[0][:, 0], np.full(n2, C2[1])])
-        A = np.hstack([time_weight_array1, time_weight_array2]).T
+        time_array1 = C1[0][:, 0]
+        time_array2 = C2[0][:, 0]
+        wieghts_vector = np.concatenate((np.full(n1, C1[1]), np.full(n2, C2[1])))
+        A = np.concatenate((time_array1, time_array2))
         data = np.vstack([C1[0][:, 1:], C2[0][:, 1:]])
-        return np.linalg.lstsq(A, data)[0]
+        return np.polyfit(A, data, 1, w=wieghts_vector)
     except:
         print "error in calc_best_fit_line"
 
@@ -61,7 +65,9 @@ def sqrd_dist_sum(P, line):
         A = np.vstack([time_array, np.ones(len(time_array))]).T
         data = P[:, 1:]
         projected_points = np.dot(A, line)
-        return sum((np.linalg.norm(data - projected_points, axis=1)) ** 2)
+        norm_vector = np.apply_along_axis(np.linalg.norm, axis=1, arr=data - projected_points)
+        squared_norm_distances = np.square(norm_vector)
+        return sum(squared_norm_distances)
     except:
         print "error in sqrd_dist_sum"
 

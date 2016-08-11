@@ -2,6 +2,110 @@ import numpy as np
 import utils
 import ksegment
 import Coreset
+import unittest
+
+
+class ksegment_test(unittest.TestCase):
+    def test_basic_demo(self):
+        # generate points
+        N = 600
+        dimension = 2
+        k = 3
+        epsilon = 0.1
+
+        # data = random_data(N, dimension)
+        # for example1 choose N that divides by 6
+        data = example1(N)
+
+        P = np.c_[np.mgrid[1:N + 1], data]
+
+        coreset = Coreset.build_coreset(P, k, epsilon)
+        dividers = ksegment.coreset_k_segment(coreset, k)
+        # dividers = ksegment.k_segment(P, k)
+        # W = Coreset.PiecewiseCoreset(N, utils.s_func, 0.1)
+        # bicriteria_est = Coreset.bicriteria(P,k)
+        # print "BiCritetria estimated distance sum: ", bicriteria_est
+        utils.visualize_3d(P, dividers)
+
+    def test_best_fit_line_multiple_coresets(self):
+        # generate points
+        N = 1200
+        dimension = 2
+        k = 3
+        epsilon = 0.1
+
+        # for example1 choose N that divides by 6
+        data = example1(N)
+
+        P = np.c_[np.mgrid[1:N + 1], data]
+        P1 = P[:1000]
+        P2 = P[1000:]
+
+        res1 = utils.calc_best_fit_line(P)
+
+        C = Coreset.OneSegmentCorset(P)
+
+        C1 = Coreset.OneSegmentCorset(P1)
+        C2 = Coreset.OneSegmentCorset(P2)
+
+        original_cost = utils.sqrd_dist_sum(P, res1)
+        single_coreset_cost = utils.sqrd_dist_sum(C[0], res1) * C[1]
+        # C1_cost = int(utils.sqrd_dist_sum(C1[0], res1) * C1[1])
+        # P1_cost = int(utils.sqrd_dist_sum(P1, res1))
+        C1_cost = int(utils.sqrd_dist_sum(C1[0], utils.calc_best_fit_line(C1[0])) * C1[1])
+        P1_cost = int(utils.sqrd_dist_sum(P1, utils.calc_best_fit_line(P1)))
+        C2_cost = int(utils.sqrd_dist_sum(C2[0], res1) * C2[1])
+        dual_coreset_cost = C1_cost + C2_cost
+
+        self.assertEqual(int(original_cost), int(single_coreset_cost))
+        self.assertEqual(C1_cost, P1_cost)
+        self.assertEqual(int(original_cost), int(dual_coreset_cost))
+
+        res2 = utils.calc_best_fit_line_coreset(C1, C2)
+
+        self.assertEqual(res1, res2)
+
+    def test_best_polyfit_compared_to_linalg(self):
+        # generate points
+        N = 1200
+        k = 3
+
+        # for example1 choose N that divides by 6
+        data = example1(N)
+
+        P = np.c_[np.mgrid[1:N + 1], data]
+
+        res1 = utils.calc_best_fit_line(P)
+        res2 = utils.calc_best_fit_line_polyfit(P)
+
+        self.assertEqual(res1, res2)
+
+    def test_OneSegmentCoreset_on_multiple_coresets(self):
+        # generate points
+        N = 1200
+        dimension = 2
+        k = 3
+        epsilon = 0.1
+
+        # for example1 choose N that divides by 6
+        data = example1(N)
+
+        P = np.c_[np.mgrid[1:N + 1], data]
+        P1 = np.c_[np.mgrid[1:1000], data[0:999]]
+        P2 = np.c_[np.mgrid[1001: N + 1], data[1000:]]
+
+        res1 = utils.calc_best_fit_line(P)
+
+        C1 = Coreset.OneSegmentCorset(P1)
+        C2 = Coreset.OneSegmentCorset(P2)
+        C3 = Coreset.OneSegmentCorset(P)
+
+        coreset_of_coresets = Coreset.OneSegmentCorset_weights(C1, C2)
+
+        res2 = utils.calc_best_fit_line(coreset_of_coresets[0])
+
+        res3 = utils.calc_best_fit_line(C3[0])
+        self.assertEqual(res2, res3)
 
 
 def random_data(N, dimension):
@@ -29,84 +133,3 @@ def example2():
     y1 = np.mgrid[-5:3:100j]
     x1 += np.random.normal(size=x1.shape) * 4
     return np.c_[x1, y1]
-
-
-def test1():
-    # generate points
-    N = 600
-    dimension = 2
-    k = 3
-    epsilon = 0.1
-
-    # data = random_data(N, dimension)
-    # for example1 choose N that divides by 6
-    data = example1(N)
-
-    P = np.c_[np.mgrid[1:N + 1], data]
-
-    coreset = Coreset.build_coreset(P, k, epsilon)
-    dividers = ksegment.coreset_k_segment(coreset, k)
-    # dividers = ksegment.k_segment(P, k)
-    # W = Coreset.PiecewiseCoreset(N, utils.s_func, 0.1)
-    # bicriteria_est = Coreset.bicriteria(P,k)
-    # print "BiCritetria estimated distance sum: ", bicriteria_est
-    utils.visualize_3d(P, dividers)
-
-
-def test2():
-    # generate points
-    N = 1200
-    dimension = 2
-    k = 3
-    epsilon = 0.1
-
-    # for example1 choose N that divides by 6
-    data = example1(N)
-
-    P = np.c_[np.mgrid[1:N + 1], data]
-    P1 = np.c_[np.mgrid[1:1000], data[0:999]]
-    P2 = np.c_[np.mgrid[1001: N + 1], data[1000:]]
-
-    res1 = utils.calc_best_fit_line(P)
-
-    C1 = Coreset.OneSegmentCorset(P1)
-    C2 = Coreset.OneSegmentCorset(P2)
-    res2 = utils.calc_best_fit_line_coreset(C1, C2)
-
-    assert (res1 == res2)
-
-
-def test3():
-    # generate points
-    N = 1200
-    dimension = 2
-    k = 3
-    epsilon = 0.1
-
-    # for example1 choose N that divides by 6
-    data = example1(N)
-
-    P = np.c_[np.mgrid[1:N + 1], data]
-    P1 = np.c_[np.mgrid[1:1000], data[0:999]]
-    P2 = np.c_[np.mgrid[1001: N + 1], data[1000:]]
-
-    res1 = utils.calc_best_fit_line(P)
-
-    C1 = Coreset.OneSegmentCorset(P1)
-    C2 = Coreset.OneSegmentCorset(P2)
-    C3 = Coreset.OneSegmentCorset(P)
-
-    coreset_of_coresets = Coreset.OneSegmentCorset_weights(C1, C2)
-
-    res2 = utils.calc_best_fit_line(coreset_of_coresets[0])
-
-    res3 = utils.calc_best_fit_line(C3[0])
-    print res1
-
-
-def main():
-    test1()
-    # test2()
-    # test3()
-
-main()
