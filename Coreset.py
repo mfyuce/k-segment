@@ -93,10 +93,14 @@ def OneSegmentCorset(P):
     q[:, 0] = u / np.linalg.norm(u)  # TODO verify
     Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
     # calculate Y
+
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
-    y[:, 0] = math.sqrt(w) / np.linalg.norm(u)  # set y's first column to be sqrt of w divided by u's normal
+    yLeftCol = math.sqrt(w) / np.linalg.norm(u)
+    y[:, 0] = yLeftCol  # set y's first column to be sqrt of w divided by u's normal
     # compute Y with QR decompression - first column will not change - it is already normalized
     Y = np.linalg.qr(y)[0]
+    if (Y[:, 0] == -y[:, 0] ).all():
+        Y = -Y
     YQtSVt = np.dot(np.dot(Y, Q.T), SVt)
     YQtSVt = YQtSVt / math.sqrt(w)
     # set B to the d+1 rightmost columns
@@ -121,12 +125,17 @@ def OneSegmentCorset_weights(C1, C2):
     Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
     # calculate Y
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
-    y[:, 0] = math.sqrt(w) / np.linalg.norm(u)  # set y's first column to be sqrt of w divided by u's normal
+    yFirstCol= math.sqrt(w) / np.linalg.norm(u)
+    y[:, 0] = yFirstCol  # set y's first column to be sqrt of w divided by u's normal
     # set all the vectors to be orthogonal to the first vector
-    for i in xrange(1, X.shape[1]):
-        y[:, i] = y[:, i] - np.dot(y[:, 0], np.linalg.norm(y[:, i], axis=0)) * np.linalg.norm(y[:, i], axis=0)
+        #for i in xrange(1, X.shape[1]):
+        #    y[:, i] = y[:, i] - np.dot(y[:, 0], np.linalg.norm(y[:, i], axis=0)) * np.linalg.norm(y[:, i], axis=0)
     # compute Y with QR decompression - first column will not change - it is already normalized
     Y = np.linalg.qr(y)[0]
+    if (Y[:, 0] == -y[:, 0]).all():
+        Y[:, 0] == y[:, 0]
+    utils.is_unitary(Y)
+
     YQtSVt = np.dot(np.dot(Y, Q.T), SVt)
     YQtSVt = YQtSVt / math.sqrt(w)
     # set B to the d+1 rightmost columns
