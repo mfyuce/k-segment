@@ -126,3 +126,7 @@ def visualize_3d(P, dividers):
 def best_fit_line_cost(P, is_coreset=False):
     best_fit_line = calc_best_fit_line(P)
     return sqrd_dist_sum(P, best_fit_line)
+
+
+def is_unitary(M):
+    return np.allclose(np.eye(len(M)), M.dot(M.T.conj()))
