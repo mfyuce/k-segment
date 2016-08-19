@@ -23,14 +23,14 @@ def one_seg(P, is_coreset=False):
 
 
 def bicriteria(P, k, is_coreset=False):
-    if len(P) <= (2 * k + 1):
+    if len(P) <= (4 * k + 1):
         return 0
-    m = int(math.floor(len(P) / (2 * k)))
+    m = int(math.floor(len(P) / (4 * k)))
     i = 0
     j = m
     # one_seg_res will hold segment starting index and result (squred distance sum)
     one_seg_res = []
-    # partition to 2k segments and call 1-segment for each
+    # partition to 4k segments and call 1-segment for each
     while i < len(P):
         if is_coreset:
             partition_set = one_seg(P[i:j])

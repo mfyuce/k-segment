@@ -1,5 +1,4 @@
 import numpy as np
-import scipy as sc
 import mpl_toolkits.mplot3d as m3d
 import matplotlib.pyplot as plt
 
@@ -10,6 +9,8 @@ calc_best_fit_line -
         C[i,0] is the slope
         C[i,1] is the intercept with the i-th dimensional axis
 '''
+
+
 def calc_best_fit_line(P):
     try:
         n = len(P)
@@ -78,6 +79,13 @@ def pt_on_line(x, line):
         coordinates.append(line[0, i] * x + line[1, i])
     return coordinates
 
+
+def calc_cost_dividers(P, dividers):
+    cost = 0.0
+    for i in xrange(len(dividers) - 1):
+        segment = P[dividers[i] - 1: dividers[i + 1], :]
+        cost += sqrd_dist_sum(segment, calc_best_fit_line(segment))
+    return cost
 
 def lines_from_dividers(P, dividers):
     lines = []

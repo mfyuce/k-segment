@@ -27,6 +27,23 @@ class ksegment_test(unittest.TestCase):
         # print "BiCritetria estimated distance sum: ", bicriteria_est
         utils.visualize_3d(P, dividers)
 
+    def test_bicritiria(self):
+        # generate points
+        N = 180
+        dimension = 2
+        k = 3
+        epsilon = 0.1
+
+        # for example1 choose N that divides by 6
+        data = example1(N)
+
+        P = np.c_[np.mgrid[1:N + 1], data]
+
+        #real_cost = utils.best_fit_line_cost(P)
+        bicritiria_cost = Coreset.bicriteria(P, 3)
+        real_cost = utils.calc_cost_dividers(P, ksegment.k_segment(P, 3))
+        self.assertGreaterEqual(real_cost, bicritiria_cost)
+
     def test_best_fit_line_multiple_coresets(self):
         # generate points
         N = 1200
