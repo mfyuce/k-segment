@@ -92,17 +92,18 @@ def OneSegmentCorset(P):
     q = np.identity(X.shape[1])  # q - temporary matrix to build an identity matrix with leftmost column - u
     q[:, 0] = u / np.linalg.norm(u)  # TODO verify
     Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
+    if np.allclose(Q[:, 0], -q[:, 0]):
+        Q = -Q
     # calculate Y
-
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
     yLeftCol = math.sqrt(w) / np.linalg.norm(u)
     y[:, 0] = yLeftCol  # set y's first column to be sqrt of w divided by u's normal
     # compute Y with QR decompression - first column will not change - it is already normalized
     Y = np.linalg.qr(y)[0]
-    if (Y[:, 0] == -y[:, 0] ).all():
+    if np.allclose(Y[:, 0], -y[:, 0]):
         Y = -Y
     YQtSVt = np.dot(np.dot(Y, Q.T), SVt)
-    YQtSVt = YQtSVt / math.sqrt(w)
+    YQtSVt /= math.sqrt(w)
     # set B to the d+1 rightmost columns
     B = YQtSVt[:, 1:]
     return [B, w]

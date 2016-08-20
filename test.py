@@ -51,7 +51,7 @@ class ksegment_test(unittest.TestCase):
         data = example1(N)
 
         P = np.c_[np.mgrid[1:N + 1], data]
-        P1 = P[1000:]
+        P1 = P[:1000]
         P2 = P[1000:]
 
         C = Coreset.OneSegmentCorset(P)
@@ -65,7 +65,7 @@ class ksegment_test(unittest.TestCase):
 
         original_cost_not_best_fit_line = utils.sqrd_dist_sum(P, best_fit_line_P)
         single_coreset_cost = utils.sqrd_dist_sum(C[0], best_fit_line_P) * C[1]
-        C1_cost = int(utils.sqrd_dist_sum(C1[0], utils.calc_best_fit_line(C1[0])) * C1[1])
+        C1_cost = int(utils.sqrd_dist_sum(C1[0], best_fit_line_P) * C1[1])
         P1_cost = int(utils.sqrd_dist_sum(P1, utils.calc_best_fit_line(P1)))
         C2_cost = int(utils.sqrd_dist_sum(C2[0], best_fit_line_P) * C2[1])
         dual_coreset_cost = C1_cost + C2_cost
