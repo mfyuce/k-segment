@@ -5,7 +5,7 @@ import Coreset
 import unittest
 
 
-class ksegment_test(unittest.TestCase):
+class KSegmentTest(unittest.TestCase):
     def test_basic_demo(self):
         # generate points
         N = 600
@@ -144,7 +144,6 @@ class ksegment_test(unittest.TestCase):
         res3 = utils.calc_best_fit_line(C3[0])
         self.assertEqual(res2, res3)
 
-
     def test_OneSegmentCoreset_on_multiple_coresets_Diferrent_w(self):
         # generate points
         N = 1200
@@ -154,24 +153,25 @@ class ksegment_test(unittest.TestCase):
 
         # for example1 choose N that divides by 6
         data = example1(N)
-        data2=example1(N)
-
 
         P = np.c_[np.mgrid[1:N + 1], data]
-        P1 = np.c_[np.mgrid[1:300], data[0:299]]
-        P2 = np.c_[np.mgrid[301: 1000], data[300:999]]
-        P3 = np.c_[np.mgrid[1001: N+1], data[1000:]]
-        res1 = utils.calc_best_fit_line(P)
+        P1 = np.c_[np.mgrid[1:5], data[0:4]]
+        P2 = np.c_[np.mgrid[6: 10], data[5:9]]
+        P3 = np.c_[np.mgrid[11: 20], data[10:19]]
+        P4 = np.c_[np.mgrid[21: N + 1], data[20:]]
 
+        C = Coreset.OneSegmentCorset(P)
         C1 = Coreset.OneSegmentCorset(P1)
         C2 = Coreset.OneSegmentCorset(P2)
-        C3 = Coreset.OneSegmentCorset(P)
-        C4 = Coreset.OneSegmentCorset(P3)
+        C3 = Coreset.OneSegmentCorset(P3)
+        C4 = Coreset.OneSegmentCorset(P4)
         coreset_of_coresets1 = Coreset.OneSegmentCorset_weights(C1, C2)
-        coreset_of_coresets2 = Coreset.OneSegmentCorset_weights(coreset_of_coresets1,C4)
-        res2 = utils.calc_best_fit_line(coreset_of_coresets2[0])
+        coreset_of_coresets2 = Coreset.OneSegmentCorset_weights(C3, C4)
+        coreset_of_coresets3 = Coreset.OneSegmentCorset_weights(coreset_of_coresets1, coreset_of_coresets2)
 
-        res3 = utils.calc_best_fit_line(C3[0])
+        res1 = utils.calc_best_fit_line(P)
+        res3 = utils.calc_best_fit_line(C[0])
+        res2 = utils.calc_best_fit_line(coreset_of_coresets3[0])
         self.assertEqual(res2, res3)
 
 
