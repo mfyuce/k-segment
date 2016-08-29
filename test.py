@@ -107,7 +107,7 @@ class KSegmentTest(unittest.TestCase):
         best_fit_line_P1 = utils.calc_best_fit_line(P1)
         best_fit_line_C1 = utils.calc_best_fit_line(C1[0])
 
-        self.assertEqual(best_fit_line_P1.all(), best_fit_line_C1.all())    # TODO doesn't work
+        self.assertEqual(best_fit_line_P1.all(), best_fit_line_C1.all())
 
         original_cost_not_best_fit_line = utils.sqrd_dist_sum(P1, best_fit_line_P)
         original_cost_best_fit_line = utils.sqrd_dist_sum(P1, best_fit_line_P1)
@@ -117,48 +117,18 @@ class KSegmentTest(unittest.TestCase):
         self.assertEqual(int(original_cost_best_fit_line), int(single_coreset_cost_best_fit_line))
         self.assertEqual(int(original_cost_not_best_fit_line), int(single_coreset_cost_not_best_fit_line))
 
-    def test_OneSegmentCoreset_on_multiple_coresets(self):
+    def test_OneSegmentCoreset_bestFitLineIdentical_diferrentWeights(self):
         # generate points
         N = 1200
-        dimension = 2
-        k = 3
-        epsilon = 0.1
 
         # for example1 choose N that divides by 6
         data = example1(N)
 
         P = np.c_[np.mgrid[1:N + 1], data]
-        P1 = np.c_[np.mgrid[1:1000], data[0:999]]
-        P2 = np.c_[np.mgrid[1001: N + 1], data[1000:]]
-
-        res1 = utils.calc_best_fit_line(P)
-
-        C1 = Coreset.OneSegmentCorset(P1)
-        C2 = Coreset.OneSegmentCorset(P2)
-        C3 = Coreset.OneSegmentCorset(P)
-
-        coreset_of_coresets = Coreset.OneSegmentCorset_weights(C1, C2)
-
-        res2 = utils.calc_best_fit_line(coreset_of_coresets[0])
-
-        res3 = utils.calc_best_fit_line(C3[0])
-        self.assertEqual(res2, res3)
-
-    def test_OneSegmentCoreset_on_multiple_coresets_Diferrent_w(self):
-        # generate points
-        N = 1200
-        dimension = 2
-        k = 3
-        epsilon = 0.1
-
-        # for example1 choose N that divides by 6
-        data = example1(N)
-
-        P = np.c_[np.mgrid[1:N + 1], data]
-        P1 = np.c_[np.mgrid[1:5], data[0:4]]
-        P2 = np.c_[np.mgrid[6: 10], data[5:9]]
-        P3 = np.c_[np.mgrid[11: 20], data[10:19]]
-        P4 = np.c_[np.mgrid[21: N + 1], data[20:]]
+        P1 = P[:5]
+        P2 = P[5:20]
+        P3 = P[20:30]
+        P4 = P[30:]
 
         C = Coreset.OneSegmentCorset(P)
         C1 = Coreset.OneSegmentCorset(P1)
@@ -169,18 +139,20 @@ class KSegmentTest(unittest.TestCase):
         coreset_of_coresets2 = Coreset.OneSegmentCorset_weights(C3, C4)
         coreset_of_coresets3 = Coreset.OneSegmentCorset_weights(coreset_of_coresets1, coreset_of_coresets2)
 
-        res1 = utils.calc_best_fit_line(P)
-        res3 = utils.calc_best_fit_line(C[0])
-        res2 = utils.calc_best_fit_line(coreset_of_coresets3[0])
-        self.assertEqual(res2, res3)
+        original_points_best_fit_line = utils.calc_best_fit_line(P)
+        single_coreset_best_fit_line = utils.calc_best_fit_line(C[0])
+        coreset_of_coresetes_best_fit_line = utils.calc_best_fit_line(coreset_of_coresets3[0])
+        np.testing.assert_allclose(original_points_best_fit_line, coreset_of_coresetes_best_fit_line)
+        np.testing.assert_allclose(coreset_of_coresetes_best_fit_line, single_coreset_best_fit_line)
 
 
 def random_data(N, dimension):
     return np.random.random_integers(0, 100, (N, dimension))
 
 
+# 3 straight lines with noise
+# choose N that divides by 6
 def example1(n):
-    # 3 straight lines with noise
     x1 = np.mgrid[1:9:2 * n / 6j]
     y1 = np.mgrid[-5:3:2 * n / 6j]
     x2 = np.mgrid[23:90:n / 2j]
