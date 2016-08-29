@@ -102,9 +102,9 @@ def calc_coreset_prep_dist(D):
             C = []
             W = []
             for coreset in D[first_coreset:second_coreset+1]:
-                segment = np.vstack([segment, coreset.C]) if segment.size else coreset.C
-                C.append(coreset.C)
-                W.append(coreset.W)
+                segment = np.vstack([segment, coreset.C.repPoints]) if segment.size else coreset.C.repPoints
+                C.append(coreset.C.repPoints)
+                W.append(coreset.C.weight)
             best_fit_line = utils.calc_best_fit_line(segment)
             fitting_cost = 0
             for i in xrange(len(C)):

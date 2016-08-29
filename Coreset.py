@@ -1,12 +1,19 @@
 import numpy as np
 import math
 import utils
+from collections import namedtuple
+
+
+class OneSegCoreset():
+    def __init__(self, repPoints, weight, SVt):
+        self.repPoints = repPoints
+        self.weight = weight
+        self.SVt = SVt
 
 
 class coreset:
-    def __init__(self, C, W, g, b, e):
+    def __init__(self, C, g, b, e):
         self.C = C  # 1-segment coreset
-        self.W = W  # 1-segment coreset weight
         self.g = g  # best line
         self.b = b  # coreset beginning index
         self.e = e  # coreset ending index
@@ -70,18 +77,24 @@ def BalancedPartition(P, a, b):
                 C = OneSegmentCorset(T)
             # if small number of points
             else:
-                C = [np.array(Q[:-1]), 1]
+                C = OneSegCoreset(np.array(Q[:-1]),1,[])
             g = utils.calc_best_fit_line(np.asarray(T))
             b = i - len(Q[:-1])
             e = i - 1
-            D.append(coreset(C[0], C[1], g, b, e))
+            D.append(coreset(C, g, b, e))
             Q = [Q[-1]]
     return D
 
 
-def OneSegmentCorset(P):
-    # add 1's to the first column
-    X = np.insert(P, 0, values=1, axis=1)
+def OneSegmentCorset(P, is_coreset=False):
+    if is_coreset:
+        svt_to_stack = []
+        for oneSegCoreset in P:
+            svt_to_stack.append(oneSegCoreset.SVt)
+        X = np.vstack(svt_to_stack)
+    else:
+        # add 1's to the first column
+        X = np.insert(P, 0, values=1, axis=1)
     U, s, V = np.linalg.svd(X, full_matrices=False)
     # reshape S
     S = np.diag(s)
@@ -94,6 +107,7 @@ def OneSegmentCorset(P):
     Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
     if np.allclose(Q[:, 0], -q[:, 0]):
         Q = -Q
+    assert((np.allclose(Q[:, 0], q[:, 0])))
     # calculate Y
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
     yLeftCol = math.sqrt(w) / np.linalg.norm(u)
@@ -102,44 +116,13 @@ def OneSegmentCorset(P):
     Y = np.linalg.qr(y)[0]
     if np.allclose(Y[:, 0], -y[:, 0]):
         Y = -Y
+    assert ((np.allclose(Y[:, 0], y[:, 0])))
     YQtSVt = np.dot(np.dot(Y, Q.T), SVt)
     YQtSVt /= math.sqrt(w)
     # set B to the d+1 rightmost columns
     B = YQtSVt[:, 1:]
-    return [B, w, SVt]
-
-
-def OneSegmentCorset_weights(C1, C2):
-    # add 1's to the first column
-    #A = np.insert(C1[0], 0, values=np.sqrt(C1[1]), axis=1)
-    #B = np.insert(C2[0], 0, values=np.sqrt(C2[1]), axis=1)
-    A = C1[2]
-    B = C2[2]
-    X = np.vstack([A, B])
-    U, s, V = np.linalg.svd(X, full_matrices=False)
-    # reshape S
-    S = np.diag(s)
-    # calculate SV
-    SVt = np.dot(S, V)
-    u = SVt[:, 0]  # u is leftmost column of SVt
-    w = (np.linalg.norm(u) ** 2) / X.shape[1]
-    q = np.identity(X.shape[1])  # q - temporary matrix to build an identity matrix with leftmost column - u
-    q[:, 0] = u
-    Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
-    # calculate Y
-    y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
-    yFirstCol= math.sqrt(w) / np.linalg.norm(u)
-    y[:, 0] = yFirstCol  # set y's first column to be sqrt of w divided by u's normal
-    # compute Y with QR decompression - first column will not change - it is already normalized
-    Y = np.linalg.qr(y)[0]
-    if (Y[:, 0] == -y[:, 0]).all():
-        Y[:, 0] == y[:, 0]
-
-    YQtSVt = np.dot(np.dot(Y, Q.T), SVt)
-    YQtSVt = YQtSVt / math.sqrt(w)
-    # set B to the d+1 rightmost columns
-    B = YQtSVt[:, 1:]
-    return [B, w, SVt]
+    # return [B, w, SVt]
+    return OneSegCoreset(repPoints=B, weight=w, SVt=SVt)
 
 
 def PiecewiseCoreset(n, s, eps):

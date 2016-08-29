@@ -59,15 +59,15 @@ class KSegmentTest(unittest.TestCase):
         C2 = Coreset.OneSegmentCorset(P2)
 
         best_fit_line_P = utils.calc_best_fit_line(P)
-        best_fit_line_C = utils.calc_best_fit_line(C[0])
+        best_fit_line_C = utils.calc_best_fit_line(C.repPoints)
         best_fit_line_P1 = utils.calc_best_fit_line(P1)
-        best_fit_line_C1 = utils.calc_best_fit_line(C1[0])
+        best_fit_line_C1 = utils.calc_best_fit_line(C1.repPoints)
 
         original_cost_not_best_fit_line = utils.sqrd_dist_sum(P, best_fit_line_P)
-        single_coreset_cost = utils.sqrd_dist_sum(C[0], best_fit_line_P) * C[1]
-        C1_cost = int(utils.sqrd_dist_sum(C1[0], best_fit_line_P) * C1[1])
+        single_coreset_cost = utils.sqrd_dist_sum(C.repPoints, best_fit_line_P) * C.weight
+        C1_cost = int(utils.sqrd_dist_sum(C1.repPoints, best_fit_line_P) * C1.weight)
         P1_cost = int(utils.sqrd_dist_sum(P1, utils.calc_best_fit_line(P1)))
-        C2_cost = int(utils.sqrd_dist_sum(C2[0], best_fit_line_P) * C2[1])
+        C2_cost = int(utils.sqrd_dist_sum(C2.repPoints, best_fit_line_P) * C2.weight)
         dual_coreset_cost = C1_cost + C2_cost
 
         self.assertEqual(int(original_cost_not_best_fit_line), int(single_coreset_cost))
@@ -105,14 +105,14 @@ class KSegmentTest(unittest.TestCase):
 
         best_fit_line_P = utils.calc_best_fit_line(P)
         best_fit_line_P1 = utils.calc_best_fit_line(P1)
-        best_fit_line_C1 = utils.calc_best_fit_line(C1[0])
+        best_fit_line_C1 = utils.calc_best_fit_line(C1.repPoints)
 
         self.assertEqual(best_fit_line_P1.all(), best_fit_line_C1.all())
 
         original_cost_not_best_fit_line = utils.sqrd_dist_sum(P1, best_fit_line_P)
         original_cost_best_fit_line = utils.sqrd_dist_sum(P1, best_fit_line_P1)
-        single_coreset_cost_not_best_fit_line = utils.sqrd_dist_sum(C1[0], best_fit_line_P) * C1[1]
-        single_coreset_cost_best_fit_line = utils.sqrd_dist_sum(C1[0], best_fit_line_C1) * C1[1]
+        single_coreset_cost_not_best_fit_line = utils.sqrd_dist_sum(C1.repPoints, best_fit_line_P) * C1.weight
+        single_coreset_cost_best_fit_line = utils.sqrd_dist_sum(C1.repPoints, best_fit_line_C1) * C1.weight
 
         self.assertEqual(int(original_cost_best_fit_line), int(single_coreset_cost_best_fit_line))
         self.assertEqual(int(original_cost_not_best_fit_line), int(single_coreset_cost_not_best_fit_line))
@@ -135,13 +135,16 @@ class KSegmentTest(unittest.TestCase):
         C2 = Coreset.OneSegmentCorset(P2)
         C3 = Coreset.OneSegmentCorset(P3)
         C4 = Coreset.OneSegmentCorset(P4)
-        coreset_of_coresets1 = Coreset.OneSegmentCorset_weights(C1, C2)
-        coreset_of_coresets2 = Coreset.OneSegmentCorset_weights(C3, C4)
-        coreset_of_coresets3 = Coreset.OneSegmentCorset_weights(coreset_of_coresets1, coreset_of_coresets2)
+        C1_C2 = [C1,C2]
+        C3_C4 = [C3,C4]
+        coreset_of_coresets1 = Coreset.OneSegmentCorset(C1_C2, True)
+        coreset_of_coresets2 = Coreset.OneSegmentCorset(C3_C4, True)
+        coreset_of_coresetrs = [coreset_of_coresets1, coreset_of_coresets2]
+        coreset_of_coresets3 = Coreset.OneSegmentCorset(coreset_of_coresetrs, True)
 
         original_points_best_fit_line = utils.calc_best_fit_line(P)
-        single_coreset_best_fit_line = utils.calc_best_fit_line(C[0])
-        coreset_of_coresetes_best_fit_line = utils.calc_best_fit_line(coreset_of_coresets3[0])
+        single_coreset_best_fit_line = utils.calc_best_fit_line(C.repPoints)
+        coreset_of_coresetes_best_fit_line = utils.calc_best_fit_line(coreset_of_coresets3.repPoints)
         np.testing.assert_allclose(original_points_best_fit_line, coreset_of_coresetes_best_fit_line)
         np.testing.assert_allclose(coreset_of_coresetes_best_fit_line, single_coreset_best_fit_line)
 
