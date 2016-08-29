@@ -25,8 +25,12 @@ def build_coreset(P, k, eps):
     return BalancedPartition(P, eps, b)
 
 
-def one_seg(P, is_coreset=False):
-    return utils.best_fit_line_cost(P, is_coreset)
+def one_seg_cost(P, is_coreset=False):
+    if is_coreset:
+        oneSegmentCoreset = OneSegmentCorset(P, is_coreset)
+        return utils.best_fit_line_cost(oneSegmentCoreset[0], is_coreset) * oneSegmentCoreset[1]
+    else:
+        return utils.best_fit_line_cost(P, is_coreset)
 
 
 def bicriteria(P, k, is_coreset=False):
@@ -39,10 +43,7 @@ def bicriteria(P, k, is_coreset=False):
     one_seg_res = []
     # partition to 4k segments and call 1-segment for each
     while i < len(P):
-        if is_coreset:
-            partition_set = one_seg(P[i:j])
-        else:
-            partition_set = one_seg(P[i:j, :])
+        partition_set = one_seg_cost(P[i:j], is_coreset)
         one_seg_res.append((partition_set, int(i)))
         i += m
         j += m
@@ -60,28 +61,31 @@ def bicriteria(P, k, is_coreset=False):
     return res + bicriteria(P, k)
 
 
-def BalancedPartition(P, a, b):
+def BalancedPartition(P, a, b, is_coreset=False):
     Q = []
     D = []
     arbitrary_p = np.zeros_like(P[0])
     arbitrary_p[0] = len(P) + 1
     points = np.vstack((P, arbitrary_p))
     n = points.shape[0]
+    columns = points.shape[1]
     for i in xrange(1, n + 1):
         Q.append(points[i - 1])
-        cost = utils.best_fit_line_cost(np.asarray(Q))
-        if (cost > b or i == n) and len(Q) > 2:
+        cost = one_seg_cost(np.asarray(Q), is_coreset)
+        if (cost > b and len(Q) > columns) or i == n:
+            if (n + 1 - i) < columns:
+                Q.append(points[i:])
             # if current number of points can be turned into a coreset
             T = Q[:-1]
-            if len(Q[:-1]) > len(Q[0]):
-                C = OneSegmentCorset(T)
-            # if small number of points
+            C = OneSegmentCorset(T)
+            g = utils.calc_best_fit_line(np.asarray(T), is_coreset)
+            if is_coreset:
+                b = T[0].b
+                e = T[0].e
             else:
-                C = OneSegCoreset(np.array(Q[:-1]),1,[])
-            g = utils.calc_best_fit_line(np.asarray(T))
-            b = i - len(Q[:-1])
-            e = i - 1
-            D.append(coreset(C, g, b, e))
+                b = i - len(Q[:-1])
+                e = i - 1
+            D.append(coreset(C[0], C[1], g, b, e))
             Q = [Q[-1]]
     return D
 

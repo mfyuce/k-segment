@@ -2,6 +2,12 @@ import numpy as np
 import mpl_toolkits.mplot3d as m3d
 import matplotlib.pyplot as plt
 
+
+def best_fit_line_cost(P, is_coreset=False):
+    best_fit_line = calc_best_fit_line(P, is_coreset)
+    return sqrd_dist_sum(P, best_fit_line, is_coreset)
+
+
 '''
 calc_best_fit_line -
     input - set of points
@@ -9,9 +15,7 @@ calc_best_fit_line -
         C[i,0] is the slope
         C[i,1] is the intercept with the i-th dimensional axis
 '''
-
-
-def calc_best_fit_line(P):
+def calc_best_fit_line(P, is_coreset=False):
     try:
         n = len(P)
         time_array = P[:, 0]
@@ -22,45 +26,7 @@ def calc_best_fit_line(P):
         print "error in calc_best_fit_line"
 
 
-def calc_best_fit_line_polyfit(P):
-    try:
-        n = len(P)
-        time_array = P[:, 0]
-        # A = np.vstack([time_array, np.ones(n)]).T
-        data = P[:, 1:]
-        return np.polyfit(time_array, data, 1)
-    except:
-        print "error in calc_best_fit_line"
-
-
-def calc_best_fit_line_coreset(C1, C2):
-    try:
-        n1 = len(C1[0])
-        n2 = len(C2[0])
-        time_array1 = C1[0][:, 0]
-        time_array2 = C2[0][:, 0]
-        wieghts_vector = np.concatenate((np.full(n1, C1[1]), np.full(n2, C2[1])))
-        A = np.concatenate((time_array1, time_array2))
-        data = np.vstack([C1[0][:, 1:], C2[0][:, 1:]])
-        return np.polyfit(A, data, 1, w=wieghts_vector)
-    except:
-        print "error in calc_best_fit_line"
-
-
-def calc_best_fit_line_coreset_optimize(C1, C2):
-    try:
-        n1 = len(C1[0])
-        n2 = len(C2[0])
-        time_weight_array1 = np.vstack([C1[0][:, 0], np.ones(n1)])
-        time_weight_array2 = np.vstack([C2[0][:, 0], np.ones(n2)])
-        A = np.hstack([time_weight_array1, time_weight_array2]).T
-        data = np.vstack([C1[0][:, 1:], C2[0][:, 1:]])
-        return np.linalg.lstsq(A, data)[0]
-    except:
-        print "error in calc_best_fit_line"
-
-
-def sqrd_dist_sum(P, line):
+def sqrd_dist_sum(P, line, is_coreset=False):
     try:
         time_array = P[:, 0]
         A = np.vstack([time_array, np.ones(len(time_array))]).T
@@ -122,10 +88,6 @@ def visualize_3d(P, dividers):
 
     plt.show()
 
-
-def best_fit_line_cost(P, is_coreset=False):
-    best_fit_line = calc_best_fit_line(P)
-    return sqrd_dist_sum(P, best_fit_line)
 
 
 def is_unitary(M):
