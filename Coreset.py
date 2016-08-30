@@ -19,16 +19,16 @@ class coreset:
         self.e = e  # coreset ending index
 
 
-def build_coreset(P, k, eps):
-    h = bicriteria(P, k)
-    b = (eps ** 2 * h) / (100 * k * np.log2(P.shape[0]))
-    return BalancedPartition(P, eps, b)
+def build_coreset(P, k, eps, is_coreset=False):
+    h = bicriteria(P, k, is_coreset)
+    b = (eps ** 2 * h) / (100 * k * np.log2(len(P)))
+    return BalancedPartition(P, eps, b, is_coreset)
 
 
 def one_seg_cost(P, is_coreset=False):
     if is_coreset:
         oneSegmentCoreset = OneSegmentCorset(P, is_coreset)
-        return utils.best_fit_line_cost(oneSegmentCoreset[0], is_coreset) * oneSegmentCoreset[1]
+        return utils.best_fit_line_cost(oneSegmentCoreset.repPoints, is_coreset) * oneSegmentCoreset.weight
     else:
         return utils.best_fit_line_cost(P, is_coreset)
 
@@ -58,43 +58,59 @@ def bicriteria(P, k, is_coreset=False):
         for j in xrange(m):
             rows_to_delete.append(one_seg_res[i][1] + j)
     P = np.delete(P, rows_to_delete, axis=0)
-    return res + bicriteria(P, k)
+    return res + bicriteria(P, k, is_coreset)
 
 
 def BalancedPartition(P, a, b, is_coreset=False):
     Q = []
     D = []
-    arbitrary_p = np.zeros_like(P[0])
-    arbitrary_p[0] = len(P) + 1
-    points = np.vstack((P, arbitrary_p))
-    n = points.shape[0]
-    columns = points.shape[1]
-    for i in xrange(1, n + 1):
-        Q.append(points[i - 1])
+    points = P
+    # add arbitrary item to list
+    dimensions = points[0].C.repPoints.shape[1] if is_coreset else points.shape[1]
+    if is_coreset:
+        points.append(P[0])  # arbitrary coreset n+1
+    else:
+        points = np.vstack((points, np.zeros(dimensions)))  # arbitrary point n+1
+    n = len(points)
+    for i in xrange(0, n):
+        Q.append(points[i])
         cost = one_seg_cost(np.asarray(Q), is_coreset)
-        if (cost > b and len(Q) > columns) or i == n:
-            if (n + 1 - i) < columns:
-                Q.append(points[i:])
-            # if current number of points can be turned into a coreset
+        # if current number of points can be turned into a coreset - 3 conditions : 1) cost passed threshold
+        # 2) number of points to be packaged greater than dimensions +1
+        # 3) number of points left greater then dimensions + 1 (so they could be packaged lateR)
+        if cost > b and (is_coreset or (len(Q) > dimensions + 1 and dimensions + 1 <= n - 1 - i)) or i == n - 1:
+            if is_coreset and len(Q) == 1:
+                if i != n - 1:
+                    D.append(Q[0])
+                    Q = []
+                continue
             T = Q[:-1]
-            C = OneSegmentCorset(T)
-            g = utils.calc_best_fit_line(np.asarray(T), is_coreset)
+            C = OneSegmentCorset(T, is_coreset)
+            g = utils.calc_best_fit_line(OneSegmentCorset(np.asarray(T), is_coreset).repPoints)
             if is_coreset:
                 b = T[0].b
-                e = T[0].e
+                e = T[-1].e
             else:
-                b = i - len(Q[:-1])
-                e = i - 1
-            D.append(coreset(C[0], C[1], g, b, e))
+                b = T[0][0]  # signal index of first item in T
+                e = T[-1][0]  # signal index of last item in T
+            D.append(coreset(C, g, b, e))
             Q = [Q[-1]]
     return D
 
 
 def OneSegmentCorset(P, is_coreset=False):
+    try:
+        if len(P) < 2:
+            return P[0].C
+    except:
+        print "aa"
     if is_coreset:
         svt_to_stack = []
         for oneSegCoreset in P:
-            svt_to_stack.append(oneSegCoreset.SVt)
+            try:
+                svt_to_stack.append(oneSegCoreset.C.SVt)
+            except:
+                print "bb"
         X = np.vstack(svt_to_stack)
     else:
         # add 1's to the first column
@@ -107,11 +123,14 @@ def OneSegmentCorset(P, is_coreset=False):
     u = SVt[:, 0]  # u is leftmost column of SVt
     w = (np.linalg.norm(u) ** 2) / X.shape[1]
     q = np.identity(X.shape[1])  # q - temporary matrix to build an identity matrix with leftmost column - u
-    q[:, 0] = u / np.linalg.norm(u)  # TODO verify
+    try:
+        q[:, 0] = u / np.linalg.norm(u)  # TODO verify
+    except:
+        print "error in shapes"
     Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
     if np.allclose(Q[:, 0], -q[:, 0]):
         Q = -Q
-    assert((np.allclose(Q[:, 0], q[:, 0])))
+    assert ((np.allclose(Q[:, 0], q[:, 0])))
     # calculate Y
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
     yLeftCol = math.sqrt(w) / np.linalg.norm(u)
