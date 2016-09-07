@@ -21,7 +21,8 @@ class coreset:
 
 def build_coreset(P, k, eps, is_coreset=False):
     h = bicriteria(P, k, is_coreset)
-    b = (eps ** 2 * h) / (100 * k * np.log2(len(P)))
+    # b = (eps ** 2 * h) / (100 * k * np.log2(len(P)))
+    b = h / (k * np.log2(len(P)))
     return BalancedPartition(P, eps, b, is_coreset)
 
 
@@ -61,7 +62,7 @@ def bicriteria(P, k, is_coreset=False):
     return res + bicriteria(P, k, is_coreset)
 
 
-def BalancedPartition(P, a, b, is_coreset=False):
+def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
     Q = []
     D = []
     points = P
@@ -78,7 +79,7 @@ def BalancedPartition(P, a, b, is_coreset=False):
         # if current number of points can be turned into a coreset - 3 conditions : 1) cost passed threshold
         # 2) number of points to be packaged greater than dimensions +1
         # 3) number of points left greater then dimensions + 1 (so they could be packaged lateR)
-        if cost > b and (is_coreset or (len(Q) > dimensions + 1 and dimensions + 1 <= n - 1 - i)) or i == n - 1:
+        if cost > bicritiriaEst and (is_coreset or (len(Q) > dimensions + 1 and dimensions + 1 <= n - 1 - i)) or i == n - 1:
             if is_coreset and len(Q) == 1:
                 if i != n - 1:
                     D.append(Q[0])

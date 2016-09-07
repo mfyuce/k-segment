@@ -25,7 +25,7 @@ class KSegmentTest(unittest.TestCase):
 
     def test_coreset_meging(self):
         # generate points
-        N = 600
+        N = 6000
         dimension = 2
         k = 3
         epsilon = 0.1
