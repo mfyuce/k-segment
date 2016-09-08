@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import segment as segment
+
 __author__ = 'Anton'
 import numpy as np
 import pandas as pd
@@ -6,9 +8,11 @@ import ConfigParser
 from cStringIO import StringIO
 from pyspark import SparkContext
 
-from coreset import Coreset     # Should i put it inside some conf?
+# import Coreset
 
-k = 2
+#from coreset import Coreset     # Should i put it inside some conf?
+
+k = 3
 
 def init_spark(open_sc=1):
     config = ConfigParser.RawConfigParser()
@@ -23,6 +27,7 @@ def init_spark(open_sc=1):
         sc._jsc.hadoopConfiguration().set("fs.s3n.awsAccessKeyId", config.get("conf", "awsAccessKeyId"))
         sc._jsc.hadoopConfiguration().set("fs.s3n.awsSecretAccessKey", config.get("conf", "awsSecretAccessKey"))
         addFiles(sc, config.get("conf", "files").split(','))
+    import Coreset
     return sc, config, infile
 
 if __name__ == "__main__":
@@ -56,20 +61,24 @@ if __name__ == "__main__":
 
     # start from here.
     sc, config, infile = init_spark()
-    initial_num_of_partitions = config.getint("conf", "numOfPartitions")
-    
-    points = sc.textFile(infile, initial_num_of_partitions).mapPartitionsWithIndex(readPointBatch) # from text file to (key,numpy_array)
-    def computeTree(rdd, f):
-        while rdd.getNumPartitions() != 1:
-            rdd = (rdd
-                   .reduceByKey(f)  # merge couple and reduce by half
-                   .map(lambda x: (x[0] / 2, x[1]))  # set new keys
-                   .partitionBy(rdd.getNumPartitions() / 2))    # reduce num of partitions
+    # initial_num_of_partitions = config.getint("conf", "numOfPartitions")
+    initial_num_of_partitions = 1
 
-        return rdd.reduceByKey(f).first()[1] #for case its not a complete binary tree. first is actually everything now..
-        #return the corest as a numpy array
+    points = sc.textFile(infile, initial_num_of_partitions).zipWithIndex().map(lambda row: np.asarray(row[1], row[2]))
+        # .mapPartitionsWithIndex(readPointBatch) # from text file to (key,numpy_array)
 
-    result = (computeTree(points, coreset))
-    np.savetxt("coreset_points.txt", result[0])
-    np.savetxt("coreset_weights.txt", result[1])
-
+    a = points.collect()
+    print a
+    # def computeTree(rdd, f):
+    #     while rdd.getNumPartitions() != 1:
+    #         rdd = (rdd
+    #                .reduceByKey(f)  # merge couple and reduce by half
+    #                .map(lambda x: (x[0] / 2, x[1]))  # set new keys
+    #                .partitionBy(rdd.getNumPartitions() / 2))    # reduce num of partitions
+    #
+    #     return rdd.reduceByKey(f).first()[1] #for case its not a complete binary tree. first is actually everything now..
+    #     #return the corest as a numpy array
+    #
+    # result = (computeTree(points, coreset))
+    # np.savetxt("coreset_points.txt", result[0])
+    # np.savetxt("coreset_weights.txt", result[1])

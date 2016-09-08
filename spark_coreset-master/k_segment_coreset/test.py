@@ -150,7 +150,11 @@ class KSegmentTest(unittest.TestCase):
         np.testing.assert_allclose(coreset_of_coresetes_best_fit_line, single_coreset_best_fit_line)
 
     def test_generate_input_file(self):
-        utils.make_input_file(12000)
+        def make_input_file(N):
+            data = example1(N)
+            # P = np.c_[np.mgrid[1:N + 1], data]    # add time to points
+            np.savetxt('input.csv', data, '%.5f', delimiter=' ')
+        make_input_file(12000)
 
 
 def random_data(N, dimension):
