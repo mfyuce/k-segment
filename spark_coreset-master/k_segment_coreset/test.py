@@ -8,10 +8,10 @@ import unittest
 class KSegmentTest(unittest.TestCase):
     def test_basic_demo(self):
         # generate points
-        N = 60000
+        N = 600
         dimension = 2
         k = 3
-        epsilon = 4
+        epsilon = 10
 
         # data = random_data(N, dimension)
         # for example1 choose N that divides by 6
@@ -169,8 +169,8 @@ def example1(n):
 
     x = np.r_[x1, x2, x3]
     y = np.r_[y1, y2, y3]
-    x += np.random.normal(size=x.shape) * 4
-    # y += np.random.normal(size=y.shape) * 4
+    x += np.random.normal(size=x.shape) * 10
+    y += np.random.normal(size=y.shape) * 10
     return np.c_[x, y]
 
 # random
