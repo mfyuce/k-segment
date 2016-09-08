@@ -149,6 +149,9 @@ class KSegmentTest(unittest.TestCase):
         np.testing.assert_allclose(original_points_best_fit_line, coreset_of_coresetes_best_fit_line)
         np.testing.assert_allclose(coreset_of_coresetes_best_fit_line, single_coreset_best_fit_line)
 
+    def test_generate_input_file(self):
+        utils.make_input_file(12000)
+
 
 def random_data(N, dimension):
     return np.random.random_integers(0, 100, (N, dimension))

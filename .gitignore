@@ -57,3 +57,7 @@ k-segment.pyproj
 *.pyproj
 
 .idea/*
+spark_coreset-master/.idea/misc.xml
+spark_coreset-master/.idea/modules.xml
+spark_coreset-master/.idea/spark_coreset-master.iml
+*.xml

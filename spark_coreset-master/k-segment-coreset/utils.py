@@ -1,6 +1,7 @@
 import numpy as np
 import mpl_toolkits.mplot3d as m3d
 import matplotlib.pyplot as plt
+import test
 
 
 def best_fit_line_cost(P, is_coreset=False):
@@ -88,6 +89,11 @@ def visualize_3d(P, dividers):
 
     plt.show()
 
+
+def make_input_file(N):
+    data = test.example1(N)
+    P = np.c_[np.mgrid[1:N + 1], data]
+    np.savetxt('input.csv', P, '%.5f', delimiter=',')
 
 
 def is_unitary(M):
