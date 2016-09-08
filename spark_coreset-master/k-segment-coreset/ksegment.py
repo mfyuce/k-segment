@@ -57,24 +57,9 @@ def get_x_val_dividers(p, k, nodes):
     return result
 
 
-# function to back-trace and figure out the dividers from the result of the dynamic-programming
-def get_x_val_dividers_coreset(D, k, nodes):
-    # index of the current node to back-trace from
-    cur_end_segment_node = len(nodes.info) - 1
-    result = np.array(D[cur_end_segment_node].e)
-    for i in reversed(xrange(0,k)):
-        # get the start of the segment coreset index from the populated nodes.info
-        cur_end_segment_node = int(nodes.info[cur_end_segment_node, 1, i])
-        x_value = D[cur_end_segment_node].b
-        result = np.insert(result, 0, x_value)
-        # since the next divider will be written on the previous node's result array
-        cur_end_segment_node -= 1
-    return result
-
-
 def calc_prep_dist(P):
     prep_dist = np.full((len(P), len(P)),float("inf"))
-    for index,value in np.ndenumerate(prep_dist):
+    for index, value in np.ndenumerate(prep_dist):
         if (index[0]<index[1]):
             segment = P[index[0]:index[1]+1,:]
             best_fit_line = utils.calc_best_fit_line(segment)
@@ -91,6 +76,19 @@ def k_segment(P, k):
     #print "the x values that divivde the pointset to k segments are:\n%s" % dividers
     return dividers
 
+# function to back-trace and figure out the dividers from the result of the dynamic-programming
+def get_x_val_dividers_coreset(D, k, nodes):
+    # index of the current node to back-trace from
+    cur_end_segment_node = len(nodes.info) - 1
+    result = np.array(D[cur_end_segment_node].e)
+    for i in reversed(xrange(0,k)):
+        # get the start of the segment coreset index from the populated nodes.info
+        cur_end_segment_node = int(nodes.info[cur_end_segment_node, 1, i])
+        x_value = D[cur_end_segment_node].b
+        result = np.insert(result, 0, x_value)
+        # since the next divider will be written on the previous node's result array
+        cur_end_segment_node -= 1
+    return result
 
 def calc_coreset_prep_dist(D):
     prep_dist = np.full((len(D), len(D)), float("inf"))

@@ -1,7 +1,6 @@
 import numpy as np
 import math
 import utils
-from collections import namedtuple
 
 
 class OneSegCoreset():
@@ -21,8 +20,7 @@ class coreset:
 
 def build_coreset(P, k, eps, is_coreset=False):
     h = bicriteria(P, k, is_coreset)
-    # b = (eps ** 2 * h) / (100 * k * np.log2(len(P)))
-    b = h / (k * np.log2(len(P)))
+    b = (eps ** 2 * h) / (100 * k * np.log2(len(P)))
     return BalancedPartition(P, eps, b, is_coreset)
 
 
@@ -76,9 +74,10 @@ def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
     for i in xrange(0, n):
         Q.append(points[i])
         cost = one_seg_cost(np.asarray(Q), is_coreset)
-        # if current number of points can be turned into a coreset - 3 conditions : 1) cost passed threshold
-        # 2) number of points to be packaged greater than dimensions +1
-        # 3) number of points left greater then dimensions + 1 (so they could be packaged lateR)
+        # if current number of points can be turned into a coreset - 3 conditions :
+        # 1) cost passed threshold
+        # 2) number of points to be packaged greater than dimensions + 1
+        # 3) number of points left greater then dimensions + 1 (so they could be packaged later)
         if cost > bicritiriaEst and (is_coreset or (len(Q) > dimensions + 1 and dimensions + 1 <= n - 1 - i)) or i == n - 1:
             if is_coreset and len(Q) == 1:
                 if i != n - 1:
@@ -100,18 +99,12 @@ def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
 
 
 def OneSegmentCorset(P, is_coreset=False):
-    try:
-        if len(P) < 2:
-            return P[0].C
-    except:
-        print "aa"
+    if len(P) < 2:
+        return P[0].C
     if is_coreset:
         svt_to_stack = []
         for oneSegCoreset in P:
-            try:
-                svt_to_stack.append(oneSegCoreset.C.SVt)
-            except:
-                print "bb"
+            svt_to_stack.append(oneSegCoreset.C.SVt)
         X = np.vstack(svt_to_stack)
     else:
         # add 1's to the first column
@@ -124,13 +117,11 @@ def OneSegmentCorset(P, is_coreset=False):
     u = SVt[:, 0]  # u is leftmost column of SVt
     w = (np.linalg.norm(u) ** 2) / X.shape[1]
     q = np.identity(X.shape[1])  # q - temporary matrix to build an identity matrix with leftmost column - u
-    try:
-        q[:, 0] = u / np.linalg.norm(u)  # TODO verify
-    except:
-        print "error in shapes"
+    q[:, 0] = u / np.linalg.norm(u)
     Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
     if np.allclose(Q[:, 0], -q[:, 0]):
         Q = -Q
+    # assert matrix is as expected
     assert ((np.allclose(Q[:, 0], q[:, 0])))
     # calculate Y
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
@@ -140,6 +131,7 @@ def OneSegmentCorset(P, is_coreset=False):
     Y = np.linalg.qr(y)[0]
     if np.allclose(Y[:, 0], -y[:, 0]):
         Y = -Y
+    # assert matrix is as expected
     assert ((np.allclose(Y[:, 0], y[:, 0])))
     YQtSVt = np.dot(np.dot(Y, Q.T), SVt)
     YQtSVt /= math.sqrt(w)

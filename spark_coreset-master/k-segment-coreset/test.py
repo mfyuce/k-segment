@@ -8,10 +8,10 @@ import unittest
 class KSegmentTest(unittest.TestCase):
     def test_basic_demo(self):
         # generate points
-        N = 600
+        N = 60000
         dimension = 2
         k = 3
-        epsilon = 0.1
+        epsilon = 4
 
         # data = random_data(N, dimension)
         # for example1 choose N that divides by 6
@@ -20,7 +20,9 @@ class KSegmentTest(unittest.TestCase):
         P = np.c_[np.mgrid[1:N + 1], data]
 
         coreset = Coreset.build_coreset(P, k, epsilon)
+        print len(coreset)
         dividers = ksegment.coreset_k_segment(coreset, k)
+        print dividers
         utils.visualize_3d(P, dividers)
 
     def test_coreset_meging(self):
@@ -91,21 +93,6 @@ class KSegmentTest(unittest.TestCase):
         res2 = utils.calc_best_fit_line_coreset(C1, C2)
 
         self.assertEqual(best_fit_line_P, res2)
-
-    def test_best_polyfit_compared_to_linalg(self):
-        # generate points
-        N = 1200
-        k = 3
-
-        # for example1 choose N that divides by 6
-        data = example1(N)
-
-        P = np.c_[np.mgrid[1:N + 1], data]
-
-        res1 = utils.calc_best_fit_line(P)
-        res2 = utils.calc_best_fit_line_polyfit(P)
-
-        self.assertEqual(res1, res2)
 
     def test_OneSegmentCoreset_Cost(self):
         # generate points
@@ -183,7 +170,7 @@ def example1(n):
     # y += np.random.normal(size=y.shape) * 4
     return np.c_[x, y]
 
-
+# random
 def example2():
     x1 = np.mgrid[1:9:100j]
     y1 = np.mgrid[-5:3:100j]
