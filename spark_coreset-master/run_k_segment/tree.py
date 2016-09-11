@@ -6,8 +6,7 @@ import ConfigParser
 from cStringIO import StringIO
 from pyspark import SparkContext
 
-import
-from .. import Core
+import Coreset
 
 #from coreset import Coreset     # Should i put it inside some conf?
 
@@ -76,13 +75,13 @@ if __name__ == "__main__":
         elif type(a) is Coreset.coreset:
             points_coreset = Coreset.build_coreset(b, k, eps, False)
             a.append(points_coreset)
-            merged_coreset = Coreset.build_coreset(existing_coreset, k, eps, True)
+            merged_coreset = Coreset.build_coreset(a, k, eps, True)
         elif type(b) is Coreset.coreset:
             points_coreset = Coreset.build_coreset(a, k, eps, False)
             b.append(points_coreset)
-            merged_coreset = Coreset.build_coreset(existing_coreset, k, eps, True)
+            merged_coreset = Coreset.build_coreset(b, k, eps, True)
         else:
-            merged_coreset = Coreset.build_coreset(np.vstack((a, b)), k, eps, True)
+            merged_coreset = Coreset.build_coreset(np.vstack((a, b)), k, eps, False)
         return merged_coreset
 
 
