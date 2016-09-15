@@ -15,12 +15,13 @@ class KSegmentTest(unittest.TestCase):
 
         # data = random_data(N, dimension)
         # for example1 choose N that divides by 6
-        data = example1(N)
-
+        # data = example1(N)
+        data = np.genfromtxt("input.csv", delimiter=" ")
         P = np.c_[np.mgrid[1:N + 1], data]
 
         coreset = Coreset.build_coreset(P, k, epsilon)
         print len(coreset)
+        print coreset
         dividers = ksegment.coreset_k_segment(coreset, k)
         print dividers
         utils.visualize_3d(P, dividers)
@@ -154,7 +155,7 @@ class KSegmentTest(unittest.TestCase):
             data = example1(N)
             # P = np.c_[np.mgrid[1:N + 1], data]    # add time to points
             np.savetxt('input.csv', data, '%.5f', delimiter=' ')
-        make_input_file(300)
+        make_input_file(600)
 
 
 def random_data(N, dimension):

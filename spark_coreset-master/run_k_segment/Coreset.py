@@ -17,6 +17,9 @@ class coreset:
         self.b = b  # coreset beginning index
         self.e = e  # coreset ending index
 
+    def __repr__(self):
+        return "OneSegmentCoreset " + str(self.b) + "-" + str(self.e) +"\n" + str(self.C.repPoints) + "\n"
+
 
 def build_coreset(P, k, eps, is_coreset=False):
     h = bicriteria(P, k, is_coreset)
@@ -61,6 +64,7 @@ def bicriteria(P, k, is_coreset=False):
 
 
 def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
+    print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n", P
     Q = []
     D = []
     points = P
@@ -99,7 +103,9 @@ def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
 
 
 def OneSegmentCorset(P, is_coreset=False):
+    print "###########################" , is_coreset, P
     if len(P) < 2:
+        print "edge case:", P
         return P[0].C
     if is_coreset:
         svt_to_stack = []
@@ -117,7 +123,10 @@ def OneSegmentCorset(P, is_coreset=False):
     u = SVt[:, 0]  # u is leftmost column of SVt
     w = (np.linalg.norm(u) ** 2) / X.shape[1]
     q = np.identity(X.shape[1])  # q - temporary matrix to build an identity matrix with leftmost column - u
-    q[:, 0] = u / np.linalg.norm(u)
+    try:
+        q[:, 0] = u / np.linalg.norm(u)
+    except:
+        print "iscoreset:",is_coreset, "P", P,"u:", u, "q:", q
     Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
     if np.allclose(Q[:, 0], -q[:, 0]):
         Q = -Q

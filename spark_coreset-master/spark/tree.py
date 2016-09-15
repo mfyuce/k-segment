@@ -6,13 +6,13 @@ import ConfigParser
 from cStringIO import StringIO
 from pyspark import SparkContext
 
-import
-from .. import Core
+import Coreset
+import ksegment
 
 #from coreset import Coreset     # Should i put it inside some conf?
 
 k = 3
-eps = 1
+eps = 10
 
 def init_spark(open_sc=1):
     config = ConfigParser.RawConfigParser()
@@ -70,19 +70,23 @@ if __name__ == "__main__":
     #     pass
 
     def k_segment_merge(a, b):
-        if type(a) is Coreset.coreset and type(b) is Coreset.coreset:
-            a.append(b)
+        print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", a , "\n", b
+        if type(a) is list and type(b) is list:
+            a.extend(b)
+            print "appended list -------------\n", a
             merged_coreset = Coreset.build_coreset(a, k, eps, True)
-        elif type(a) is Coreset.coreset:
-            points_coreset = Coreset.build_coreset(b, k, eps, False)
-            a.append(points_coreset)
-            merged_coreset = Coreset.build_coreset(existing_coreset, k, eps, True)
-        elif type(b) is Coreset.coreset:
-            points_coreset = Coreset.build_coreset(a, k, eps, False)
-            b.append(points_coreset)
-            merged_coreset = Coreset.build_coreset(existing_coreset, k, eps, True)
+        elif type(a) is list or type(b) is list:
+            if type(a) is list:
+                points_to_coreset = b
+                coreset_to_merge = a
+            else:
+                points_to_coreset = a
+                coreset_to_merge = b
+            new_coreset = Coreset.build_coreset(points_to_coreset, k, eps, False)
+            coreset_to_merge.extend(new_coreset)
+            merged_coreset = Coreset.build_coreset(coreset_to_merge, k, eps, True)
         else:
-            merged_coreset = Coreset.build_coreset(np.vstack((a, b)), k, eps, True)
+            merged_coreset = Coreset.build_coreset(np.vstack((a, b)), k, eps, False)
         return merged_coreset
 
 
@@ -101,6 +105,7 @@ if __name__ == "__main__":
     # a = points.collect()
     # print a[1:10]
     # print points.collect()
+
     def computeTree(rdd, f):
         while rdd.getNumPartitions() != 1:
             rdd = (rdd
@@ -112,4 +117,6 @@ if __name__ == "__main__":
         #return the corest as a numpy array
 
     result = (computeTree(points, k_segment_merge))
-    np.savetxt("coreset_points.txt", result)
+    print result
+    print len(result)
+    print ksegment.coreset_k_segment(result, k)
