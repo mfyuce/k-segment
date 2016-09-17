@@ -3,9 +3,12 @@ import utils
 import ksegment
 import Coreset
 import unittest
+import cProfile
+import re
 
 
 class KSegmentTest(unittest.TestCase):
+    cProfile.run('re.compile("test_coreset_merging")')
     def test_basic_demo(self):
         # generate points
         N = 600
@@ -26,9 +29,9 @@ class KSegmentTest(unittest.TestCase):
         print dividers
         utils.visualize_3d(P, dividers)
 
-    def test_coreset_meging(self):
+    def test_coreset_merging(self):
         # generate points
-        N = 6000
+        N = 600
         dimension = 2
         k = 3
         epsilon = 0.1
@@ -184,3 +187,4 @@ def example2():
     y1 = np.mgrid[-5:3:100j]
     x1 += np.random.normal(size=x1.shape) * 4
     return np.c_[x1, y1]
+

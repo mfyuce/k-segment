@@ -1,5 +1,6 @@
 ﻿import numpy as np
 import utils
+import Coreset
 
 '''
 nodes_info brief:
@@ -100,13 +101,14 @@ def calc_coreset_prep_dist(D):
             C = []
             W = []
             for coreset in D[first_coreset:second_coreset+1]:
-                segment = np.vstack([segment, coreset.C.repPoints]) if segment.size else coreset.C.repPoints
-                C.append(coreset.C.repPoints)
+                #segment = np.vstack([segment, coreset.C.repPoints]) if segment.size else coreset.C.repPoints
                 W.append(coreset.C.weight)
-            best_fit_line = utils.calc_best_fit_line(segment)
-            fitting_cost = 0
-            for i in xrange(len(C)):
-                fitting_cost += utils.sqrd_dist_sum(C[i], best_fit_line)*W[i]
+            coreset_of_coresets = Coreset.OneSegmentCorset(C, True)
+            #best_fit_line = utils.calc_best_fit_line(segment)
+            #fitting_cost = 0
+            #for i in xrange(len(C)):
+            #    fitting_cost += utils.sqrd_dist_sum(C[i], best_fit_line)*W[i]
+            fitting_cost = utils.sqrd_dist_sum(coreset_of_coresets.repPoints, best_fit_line)*coreset_of_coresets.weight
             prep_dist[first_coreset, second_coreset] = fitting_cost
     return prep_dist
 
