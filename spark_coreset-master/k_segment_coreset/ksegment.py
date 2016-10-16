@@ -63,7 +63,7 @@ def calc_prep_dist(P):
     for index, value in np.ndenumerate(prep_dist):
         if (index[0]<index[1]):
             segment = P[index[0]:index[1]+1,:]
-            best_fit_line = utils.calc_best_fit_line(segment)
+            best_fit_line = utils.calc_best_fit_line_polyfit(segment)
             prep_dist[index] = utils.sqrd_dist_sum(segment, best_fit_line)
     return prep_dist
 
@@ -105,7 +105,7 @@ def calc_coreset_prep_dist(D):
                 C.append(coreset)
                 W.append(coreset.C.weight)
             coreset_of_coresets = Coreset.OneSegmentCorset(C, True)
-            best_fit_line = utils.calc_best_fit_line(coreset_of_coresets.repPoints, True)
+            best_fit_line = utils.calc_best_fit_line_polyfit(coreset_of_coresets.repPoints, True)
             #best_fit_line = utils.calc_best_fit_line(segment)
             #fitting_cost = 0
             #for i in xrange(len(C)):

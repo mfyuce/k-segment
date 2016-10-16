@@ -90,7 +90,7 @@ def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
                 continue
             T = Q[:-1]
             C = OneSegmentCorset(T, is_coreset)
-            g = utils.calc_best_fit_line(OneSegmentCorset(np.asarray(T), is_coreset).repPoints)
+            g = utils.calc_best_fit_line_polyfit(OneSegmentCorset(np.asarray(T), is_coreset).repPoints)
             if is_coreset:
                 b = T[0].b
                 e = T[-1].e

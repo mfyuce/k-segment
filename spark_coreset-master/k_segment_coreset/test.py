@@ -160,6 +160,23 @@ class KSegmentTest(unittest.TestCase):
             np.savetxt('input.csv', data, '%.5f', delimiter=' ')
         make_input_file(600)
 
+    def test_calc_best_fit_line_weighted(self):
+        data = np.array([[1,1],
+                [2,3],
+                [3,4],
+                [4,4]])
+        w = [1,0,0,1]
+        best_fit_Line = utils.calc_best_fit_line_polyfit(data,w)
+        print best_fit_Line
+
+    def test_calc_sqr_dist_weighted(self):
+        data = np.array([[1, 1],
+                         [2, 3],
+                         [3, 4],
+                         [4, 4]])
+        w = [1, 1, 1, 1]
+        best_fit_line_cost_weighted = utils.best_fit_line_cost_weighted(data,w)
+        print best_fit_line_cost_weighted
 
 def random_data(N, dimension):
     return np.random.random_integers(0, 100, (N, dimension))

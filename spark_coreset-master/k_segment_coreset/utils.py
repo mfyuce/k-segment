@@ -1,11 +1,19 @@
 import numpy as np
 import mpl_toolkits.mplot3d as m3d
 import matplotlib.pyplot as plt
-
+import Coreset
 
 def best_fit_line_cost(P, is_coreset=False):
-    best_fit_line = calc_best_fit_line(P, is_coreset)
+    best_fit_line = calc_best_fit_line_polyfit(P, is_coreset)
     return sqrd_dist_sum(P, best_fit_line, is_coreset)
+
+
+def best_fit_line_cost_weighted(P, W, is_coreset=False):
+    best_fit_line = calc_best_fit_line_polyfit(P, W, is_coreset)
+    return sqrd_dist_sum_weighted(P,best_fit_line, W, is_coreset)
+def s(i,n):
+    return max(4/i, 4/(n-i+1))
+
 
 
 '''
@@ -21,12 +29,24 @@ def calc_best_fit_line(P, is_coreset=False):
         time_array = P[:, 0]
         A = np.vstack([time_array, np.ones(n)]).T
         data = P[:, 1:]
+        #W = Coreset.PiecewiseCoreset(n,s,0.1);
+        #return np.polyfit(A, data, 1)[0]
         return np.linalg.lstsq(A, data)[0]
     except:
         print "error in calc_best_fit_line"
 
+def calc_best_fit_line_polyfit(P, W, is_coreset=False):
+    try:
+        n = len(P)
+        time_array = P[:, 0]
+        # A = np.vstack([time_array, np.ones(n)]).T
+        data = P[:, 1:]
+        return np.polyfit(time_array, data, 1, w=W)
+    except:
+        print "error in calc_best_fit_line"
 
-def sqrd_dist_sum(P, line, is_coreset=False):
+
+def sqrd_dist_sum(P, line,is_coreset=False):
     try:
         time_array = P[:, 0]
         A = np.vstack([time_array, np.ones(len(time_array))]).T
@@ -39,6 +59,18 @@ def sqrd_dist_sum(P, line, is_coreset=False):
         print "error in sqrd_dist_sum"
 
 
+def sqrd_dist_sum_weighted(P, line, w, is_coreset=False):
+    try:
+        time_array = P[:, 0]
+        A = np.vstack([time_array, np.ones(len(time_array))]).T
+        data = P[:, 1:]
+        projected_points = np.dot(A, line)
+        norm_vector = np.apply_along_axis(np.linalg.norm, axis=1, arr=data - projected_points)
+        squared_norm_distances = np.square(norm_vector)
+        return sum(squared_norm_distances*w)
+    except:
+        print "error in sqrd_dist_sum"
+
 def pt_on_line(x, line):
     coordinates = [x]
     for i in xrange(len(line[0])):
@@ -50,14 +82,14 @@ def calc_cost_dividers(P, dividers):
     cost = 0.0
     for i in xrange(len(dividers) - 1):
         segment = P[dividers[i] - 1: dividers[i + 1], :]
-        cost += sqrd_dist_sum(segment, calc_best_fit_line(segment))
+        cost += sqrd_dist_sum(segment, calc_best_fit_line_polyfit(segment))
     return cost
 
 def lines_from_dividers(P, dividers):
     lines = []
     for i in xrange(len(dividers) - 1):
         segment = P[dividers[i] - 1:dividers[i + 1], :]
-        lines.append(calc_best_fit_line(segment))
+        lines.append(calc_best_fit_line_polyfit(segment))
     return lines
 
 
@@ -70,7 +102,7 @@ def visualize_3d(P, dividers):
         line_start_arr_index = dividers[i] - 1
         line_end_arr_index = dividers[i + 1] - 1 if i != len(dividers) - 2 else dividers[i + 1]
         segment = P[line_start_arr_index:line_end_arr_index, :]
-        best_fit_line = calc_best_fit_line(segment)
+        best_fit_line = calc_best_fit_line_polyfit(segment)
         line_pts_list.append([pt_on_line(dividers[i], best_fit_line),
                               pt_on_line(dividers[i + 1] - (1 if i != len(dividers) - 2 else 0), best_fit_line)])
         all_sgmnt_sqrd_dist_sum += sqrd_dist_sum(segment, best_fit_line)
