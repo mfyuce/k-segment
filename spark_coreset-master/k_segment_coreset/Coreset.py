@@ -110,7 +110,7 @@ def OneSegmentCorset(P, is_coreset=False):
     if is_coreset:
         svt_to_stack = []
         for oneSegCoreset in P:
-            svt_to_stack.append(oneSegCoreset.C.SVt)
+            svt_to_stack.append(oneSegCoreset.SVt)
         X = np.vstack(svt_to_stack)
     else:
         # add 1's to the first column

@@ -35,7 +35,11 @@ def calc_best_fit_line(P, is_coreset=False):
     except:
         print "error in calc_best_fit_line"
 
-def calc_best_fit_line_polyfit(P, W, is_coreset=False):
+def calc_best_fit_line_polyfit(P, W=False, is_coreset=False):
+    if (type(W)== bool):
+        W = [1] * len(P)
+    if W==True :
+        is_coreset = True
     try:
         n = len(P)
         time_array = P[:, 0]
