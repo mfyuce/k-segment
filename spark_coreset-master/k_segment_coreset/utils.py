@@ -2,6 +2,8 @@ import numpy as np
 import mpl_toolkits.mplot3d as m3d
 import matplotlib.pyplot as plt
 import Coreset
+import test
+import ksegment
 
 def best_fit_line_cost(P, is_coreset=False):
     best_fit_line = calc_best_fit_line_polyfit(P, is_coreset)
@@ -11,35 +13,31 @@ def best_fit_line_cost(P, is_coreset=False):
 def best_fit_line_cost_weighted(P, W, is_coreset=False):
     best_fit_line = calc_best_fit_line_polyfit(P, W, is_coreset)
     return sqrd_dist_sum_weighted(P,best_fit_line, W, is_coreset)
-def s(i,n):
-    return max(4/i, 4/(n-i+1))
 
 
-
-'''
-calc_best_fit_line -
-    input - set of points
-    return- matrix [dX2] such as that for each column C[i] -
-        C[i,0] is the slope
-        C[i,1] is the intercept with the i-th dimensional axis
-'''
-def calc_best_fit_line(P, is_coreset=False):
+def calc_best_fit_line(P):
+    """
+    calc_best_fit_line -
+        input - set of points
+        return- matrix [dX2] such as that for each column C[i] -
+            C[i,0] is the slope
+            C[i,1] is the intercept with the i-th dimensional axis
+    """
     try:
         n = len(P)
         time_array = P[:, 0]
         A = np.vstack([time_array, np.ones(n)]).T
         data = P[:, 1:]
-        #W = Coreset.PiecewiseCoreset(n,s,0.1);
-        #return np.polyfit(A, data, 1)[0]
         return np.linalg.lstsq(A, data)[0]
     except:
         print "error in calc_best_fit_line"
 
+
 def calc_best_fit_line_polyfit(P, W=False, is_coreset=False):
-    if (type(W)== bool):
+    if type(W) == bool:
         W = [1] * len(P)
-    if W==True :
-        is_coreset = True
+        if W:
+            is_coreset = True
     try:
         n = len(P)
         time_array = P[:, 0]
@@ -71,9 +69,10 @@ def sqrd_dist_sum_weighted(P, line, w, is_coreset=False):
         projected_points = np.dot(A, line)
         norm_vector = np.apply_along_axis(np.linalg.norm, axis=1, arr=data - projected_points)
         squared_norm_distances = np.square(norm_vector)
-        return sum(squared_norm_distances*w)
+        return sum(squared_norm_distances * (w ** 2))
     except:
         print "error in sqrd_dist_sum"
+
 
 def pt_on_line(x, line):
     coordinates = [x]
@@ -88,6 +87,7 @@ def calc_cost_dividers(P, dividers):
         segment = P[dividers[i] - 1: dividers[i + 1], :]
         cost += sqrd_dist_sum(segment, calc_best_fit_line_polyfit(segment))
     return cost
+
 
 def lines_from_dividers(P, dividers):
     lines = []
@@ -124,5 +124,6 @@ def visualize_3d(P, dividers):
 
     plt.show()
 
-def is_unitary(M):
-    return np.allclose(np.eye(len(M)), M.dot(M.T.conj()))
+
+def is_unitary(m):
+    return np.allclose(np.eye(len(m)), m.dot(m.T.conj()))
