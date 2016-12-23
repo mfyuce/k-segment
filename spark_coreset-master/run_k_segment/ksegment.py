@@ -1,5 +1,6 @@
 ﻿import numpy as np
 import utils
+import Coreset
 
 '''
 nodes_info brief:
@@ -96,26 +97,22 @@ def calc_coreset_prep_dist(D):
         # we only want to calculate for segments that start in
         # starting coreset endpoints and end in ending coreset endpoints
         if first_coreset <= second_coreset:
-            segment = np.array([])
             C = []
-            W = []
             for coreset in D[first_coreset:second_coreset+1]:
-                segment = np.vstack([segment, coreset.C.repPoints]) if segment.size else coreset.C.repPoints
-                C.append(coreset.C.repPoints)
-                W.append(coreset.C.weight)
-            best_fit_line = utils.calc_best_fit_line(segment)
-            fitting_cost = 0
-            for i in xrange(len(C)):
-                fitting_cost += utils.sqrd_dist_sum(C[i], best_fit_line)*W[i]
+                C.append(coreset)
+            coreset_of_coresets = Coreset.OneSegmentCorset(C, True)
+            best_fit_line = utils.calc_best_fit_line(coreset_of_coresets.repPoints, True)
+            fitting_cost = utils.sqrd_dist_sum(coreset_of_coresets.repPoints, best_fit_line) * coreset_of_coresets.weight
             prep_dist[first_coreset, second_coreset] = fitting_cost
     return prep_dist
 
 
 def coreset_k_segment(D, k):
+    print "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n", D
     prep_dist = calc_coreset_prep_dist(D)
-    #print "distances for each block:\n%s\n" % prep_dist
+    print "distances for each block:\n%s\n" % prep_dist
     result = calc_partitions(prep_dist, len(D), k)
-    #print "dynamic programming (belman) result:\n%s\n" % result.info
+    print "dynamic programming (belman) result:\n%s\n" % result.info
     dividers = get_x_val_dividers_coreset(D, k, result)
     #print "the x values that divivde the pointset to k segments are:\n%s" % dividers
     return dividers

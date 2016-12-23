@@ -62,19 +62,12 @@ if __name__ == "__main__":
     def k_segment_coreset_read_point_batch(Int,iterator):
         return [(Int / 2, np.array(list(iterator)))]
 
-
-    # def k_segment_merge(a, b):
-    #     pass
-    #
-    # def k_segment_reduce(data, size):
-    #     pass
-
     def k_segment_merge(a, b):
-        print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", a , "\n", b
+        # case both are coresets
         if type(a) is list and type(b) is list:
             a.extend(b)
-            print "appended list -------------\n", a
             merged_coreset = Coreset.build_coreset(a, k, eps, True)
+        # case one of them is a set of points
         elif type(a) is list or type(b) is list:
             if type(a) is list:
                 points_to_coreset = b
@@ -85,6 +78,7 @@ if __name__ == "__main__":
             new_coreset = Coreset.build_coreset(points_to_coreset, k, eps, False)
             coreset_to_merge.extend(new_coreset)
             merged_coreset = Coreset.build_coreset(coreset_to_merge, k, eps, True)
+        # case both of them are sets of points
         else:
             merged_coreset = Coreset.build_coreset(np.vstack((a, b)), k, eps, False)
         return merged_coreset
@@ -93,18 +87,15 @@ if __name__ == "__main__":
     # start from here.
     sc, config, infile = init_spark()
     initial_num_of_partitions = config.getint("conf", "numOfPartitions")
-    # initial_num_of_partitions = 1
 
     points = sc.textFile(infile, initial_num_of_partitions) \
         .map(lambda row: np.fromstring(row, dtype=np.float64, sep=' ')) \
-        .sortBy(lambda s: s[0]) \
         .zipWithIndex() \
         .map(lambda pair: np.insert(pair[0], 0, pair[1] + 1)) \
         .mapPartitionsWithIndex(k_segment_coreset_read_point_batch) # from text file to (key,numpy_array)
 
     # a = points.collect()
-    # print a[1:10]
-    # print points.collect()
+    # print a
 
     def computeTree(rdd, f):
         while rdd.getNumPartitions() != 1:
@@ -116,7 +107,8 @@ if __name__ == "__main__":
         return rdd.reduceByKey(f).first()[1] #for case its not a complete binary tree. first is actually everything now..
         #return the corest as a numpy array
 
-    result = (computeTree(points, k_segment_merge))
+
+    result = computeTree(points, k_segment_merge)
     print result
     print len(result)
     print ksegment.coreset_k_segment(result, k)

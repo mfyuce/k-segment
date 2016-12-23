@@ -3,15 +3,18 @@ import utils
 import ksegment
 import Coreset
 import unittest
+import cProfile
+import re
 
 
 class KSegmentTest(unittest.TestCase):
+    cProfile.run('re.compile("test_coreset_merging")')
     def test_basic_demo(self):
         # generate points
-        N = 600
+        N = 1200
         dimension = 2
         k = 3
-        epsilon = 10
+        epsilon = 84.34
 
         # data = random_data(N, dimension)
         # for example1 choose N that divides by 6
@@ -24,11 +27,11 @@ class KSegmentTest(unittest.TestCase):
         print coreset
         dividers = ksegment.coreset_k_segment(coreset, k)
         print dividers
-        utils.visualize_3d(P, dividers)
+        # utils.visualize_3d(P, dividers)
 
-    def test_coreset_meging(self):
+    def test_coreset_merging(self):
         # generate points
-        N = 6000
+        N = 600
         dimension = 2
         k = 3
         epsilon = 0.1
@@ -155,7 +158,7 @@ class KSegmentTest(unittest.TestCase):
             data = example1(N)
             # P = np.c_[np.mgrid[1:N + 1], data]    # add time to points
             np.savetxt('input.csv', data, '%.5f', delimiter=' ')
-        make_input_file(600)
+        make_input_file(1200)
 
 
 def random_data(N, dimension):
@@ -184,3 +187,4 @@ def example2():
     y1 = np.mgrid[-5:3:100j]
     x1 += np.random.normal(size=x1.shape) * 4
     return np.c_[x1, y1]
+
