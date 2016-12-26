@@ -1,6 +1,4 @@
 import numpy as np
-import mpl_toolkits.mplot3d as m3d
-import matplotlib.pyplot as plt
 import Coreset
 import test
 import ksegment
@@ -111,18 +109,6 @@ def visualize_3d(P, dividers):
                               pt_on_line(dividers[i + 1] - (1 if i != len(dividers) - 2 else 0), best_fit_line)])
         all_sgmnt_sqrd_dist_sum += sqrd_dist_sum(segment, best_fit_line)
     # print "real squared distance sum: ", all_sgmnt_sqrd_dist_sum
-
-    ax = m3d.Axes3D(plt.figure())
-    ax.scatter3D(*P.T)
-    for line in line_pts_list:
-        lint_pts_arr = np.asarray(line)
-        ax.plot3D(*lint_pts_arr.T)
-
-    ax.set_xlabel('time axis')
-    ax.set_ylabel('x1 axis')
-    ax.set_zlabel('x2 axis')
-
-    plt.show()
 
 
 def is_unitary(m):

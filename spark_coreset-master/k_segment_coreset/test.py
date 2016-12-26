@@ -18,7 +18,7 @@ class KSegmentTest(unittest.TestCase):
         # dimension = 2
         k = 3
         epsilon = 0.5
-        n = 300
+        n = 600
 
         generate_input_file(n)
         data = np.genfromtxt("input.csv", delimiter=" ")
@@ -29,31 +29,20 @@ class KSegmentTest(unittest.TestCase):
         utils.visualize_3d(p, dividers)
 
     def test_fast_segmentation(self):
-        n = 360
+        n = 600
         k = 3
-        epsilon = 1
+        epsilon = 10
 
-        generate_input_file(n)
+        # generate_input_file(n)
         data = np.genfromtxt("input.csv", delimiter=" ")
         p = np.c_[np.mgrid[1:n + 1], data]
 
         D = Coreset.build_coreset(p, k, epsilon)
-        print len(D)
-        x = np.empty((0, 4))
-        for coreset in D:
-            print "coreset range", coreset.e - coreset.b + 1
-            pts = utils.pt_on_line(xrange(int(coreset.b), int(coreset.e) + 1), coreset.g)
-            # TODO: 2nd parameter should be epsilon
-            w = Coreset.PiecewiseCoreset(len(pts[0]), epsilon)
-            p_coreset = np.column_stack((pts[0], pts[1], pts[2], w))
-            p_coreset_filtered = p_coreset[p_coreset[:, 3] > 0]
-            # print "weighted points", p_coreset_filtered
-            x = np.append(x, p_coreset_filtered, axis=0)
-        print "num of weighted points", len(x)
-        dividers = ksegment.coreset_k_segment_fast_segmentation(x, k)
-        print "dividers", dividers
-        print "dividers-cost:", utils.calc_cost_dividers(p, dividers)
-        utils.visualize_3d(p, dividers)
+        print D
+        # dividers = ksegment.coreset_k_segment_fast_segmentation(D, k, epsilon)
+        # print "dividers", dividers
+        # print "dividers-cost:", utils.calc_cost_dividers(p, dividers)
+        # utils.visualize_3d(p, dividers)
 
     def test_coreset_merging(self):
         # generate points
@@ -224,6 +213,3 @@ def example2():
     y1 = np.mgrid[-5:3:100j]
     x1 += np.random.normal(size=x1.shape) * 4
     return np.c_[x1, y1]
-
-
-

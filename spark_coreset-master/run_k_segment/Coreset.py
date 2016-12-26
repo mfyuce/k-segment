@@ -39,7 +39,7 @@ def one_seg_cost(P, is_coreset=False):
 
 def bicriteria(P, k, is_coreset=False):
     if len(P) <= (4 * k + 1):
-        return 0
+        return 0 # TODO changes
     m = int(math.floor(len(P) / (4 * k)))
     i = 0
     j = m

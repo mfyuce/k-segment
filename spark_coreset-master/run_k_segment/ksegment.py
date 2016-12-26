@@ -124,11 +124,10 @@ def calc_weighted_prep_dist(pw):
             if index[1] - index[0] == 1:
                 prep_dist[index] = 0
                 continue
-            segment = pw[index[0]:index[1] + 1][:3]
-            weights = pw[index[0]:index[1] + 1][3:]
-            weightsFlattened = weights.flatten()
-            best_fit_line = utils.calc_best_fit_line_polyfit(segment, weightsFlattened)
-            prep_dist[index] = utils.sqrd_dist_sum_weighted(segment, best_fit_line, w=weightsFlattened)
+            segment = pw[index[0]:index[1]+1, :3]
+            weights = pw[index[0]:index[1]+1, 3:].flatten()
+            best_fit_line = utils.calc_best_fit_line_polyfit(segment, weights)
+            prep_dist[index] = utils.sqrd_dist_sum_weighted(segment, best_fit_line, w=weights)
     return prep_dist
 
 
@@ -142,7 +141,17 @@ def coreset_k_segment(D, k):
     return dividers
 
 
-def coreset_k_segment_fast_segmentation(pw, k):
+def coreset_k_segment_fast_segmentation(D, k, eps):
+    # TODO: Extract to func
+    pw = np.empty((0, 4))
+    for coreset in D:
+        pts = utils.pt_on_line(xrange(int(coreset.b), int(coreset.e) + 1), coreset.g)
+        # TODO: 2nd parameter should be epsilon
+        w = Coreset.PiecewiseCoreset(len(pts[0]), eps)
+        p_coreset = np.column_stack((pts[0], pts[1], pts[2], w))
+        p_coreset_filtered = p_coreset[p_coreset[:, 3] > 0]
+        # print "weighted points", p_coreset_filtered
+        pw = np.append(pw, p_coreset_filtered, axis=0)
     prep_dist = calc_weighted_prep_dist(pw)
     # print "distances for each block:\n%s\n" % prep_dist
     result = calc_partitions(prep_dist, len(pw), k)

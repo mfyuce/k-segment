@@ -101,17 +101,10 @@ def calc_coreset_prep_dist(D):
         # starting coreset endpoints and end in ending coreset endpoints
         if first_coreset <= second_coreset:
             C = []
-            W = []
             for coreset in D[first_coreset:second_coreset+1]:
-                # segment = np.vstack([segment, coreset.C.repPoints]) if segment.size else coreset.C.repPoints
                 C.append(coreset)
-                W.append(coreset.C.weight)
             coreset_of_coresets = Coreset.OneSegmentCorset(C, True)
             best_fit_line = utils.calc_best_fit_line_polyfit(coreset_of_coresets.repPoints, True)
-            # best_fit_line = utils.calc_best_fit_line(segment)
-            # fitting_cost = 0
-            # for i in xrange(len(C)):
-            #    fitting_cost += utils.sqrd_dist_sum(C[i], best_fit_line)*W[i]
             fitting_cost = utils.sqrd_dist_sum(coreset_of_coresets.repPoints, best_fit_line)*coreset_of_coresets.weight
             prep_dist[first_coreset, second_coreset] = fitting_cost
     return prep_dist
@@ -141,7 +134,16 @@ def coreset_k_segment(D, k):
     return dividers
 
 
-def coreset_k_segment_fast_segmentation(pw, k):
+def coreset_k_segment_fast_segmentation(D, k, eps):
+    # TODO: Extract to func
+    pw = np.empty((0, 4))
+    for coreset in D:
+        pts = utils.pt_on_line(xrange(int(coreset.b), int(coreset.e) + 1), coreset.g)
+        w = Coreset.PiecewiseCoreset(len(pts[0]), eps)
+        p_coreset = np.column_stack((pts[0], pts[1], pts[2], w))
+        p_coreset_filtered = p_coreset[p_coreset[:, 3] > 0]
+        # print "weighted points", p_coreset_filtered
+        pw = np.append(pw, p_coreset_filtered, axis=0)
     prep_dist = calc_weighted_prep_dist(pw)
     # print "distances for each block:\n%s\n" % prep_dist
     result = calc_partitions(prep_dist, len(pw), k)
