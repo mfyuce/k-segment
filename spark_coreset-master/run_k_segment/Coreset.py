@@ -3,7 +3,7 @@ import math
 import utils
 
 
-class OneSegCoreset():
+class OneSegCoreset:
     def __init__(self, repPoints, weight, SVt):
         self.repPoints = repPoints
         self.weight = weight
@@ -23,6 +23,8 @@ class coreset:
 
 def build_coreset(P, k, eps, is_coreset=False):
     h = bicriteria(P, k, is_coreset)
+    print "bicritiria estimate:", h
+    # TODO verify if *100 is needed here.
     b = (eps ** 2 * h) / (100 * k * np.log2(len(P)))
     return BalancedPartition(P, eps, b, is_coreset)
 
@@ -37,11 +39,11 @@ def one_seg_cost(P, is_coreset=False):
 
 def bicriteria(P, k, is_coreset=False):
     if len(P) <= (4 * k + 1):
-        return 0
+        return 0 # TODO changes
     m = int(math.floor(len(P) / (4 * k)))
     i = 0
     j = m
-    # one_seg_res will hold segment starting index and result (squred distance sum)
+    # one_seg_res will  hold segment starting index and result (squred distance sum)
     one_seg_res = []
     # partition to 4k segments and call 1-segment for each
     while i < len(P):
@@ -64,7 +66,6 @@ def bicriteria(P, k, is_coreset=False):
 
 
 def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
-    print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n", P
     Q = []
     D = []
     points = P
@@ -78,6 +79,7 @@ def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
     for i in xrange(0, n):
         Q.append(points[i])
         cost = one_seg_cost(np.asarray(Q), is_coreset)
+        # print "bp cost:", cost, "points", Q
         # if current number of points can be turned into a coreset - 3 conditions :
         # 1) cost passed threshold
         # 2) number of points to be packaged greater than dimensions + 1
@@ -90,7 +92,7 @@ def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
                 continue
             T = Q[:-1]
             C = OneSegmentCorset(T, is_coreset)
-            g = utils.calc_best_fit_line(OneSegmentCorset(np.asarray(T), is_coreset).repPoints)
+            g = utils.calc_best_fit_line_polyfit(OneSegmentCorset(np.asarray(T), is_coreset).repPoints)
             if is_coreset:
                 b = T[0].b
                 e = T[-1].e
@@ -103,9 +105,9 @@ def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
 
 
 def OneSegmentCorset(P, is_coreset=False):
-    print "###########################" , is_coreset, P
+    # print "###########################", is_coreset, P
     if len(P) < 2:
-        print "edge case:", P
+        # print "edge case:", P
         return P[0].C
     if is_coreset:
         svt_to_stack = []
@@ -131,7 +133,7 @@ def OneSegmentCorset(P, is_coreset=False):
     if np.allclose(Q[:, 0], -q[:, 0]):
         Q = -Q
     # assert matrix is as expected
-    assert ((np.allclose(Q[:, 0], q[:, 0])))
+    assert (np.allclose(Q[:, 0], q[:, 0]))
     # calculate Y
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
     yLeftCol = math.sqrt(w) / np.linalg.norm(u)
@@ -141,7 +143,7 @@ def OneSegmentCorset(P, is_coreset=False):
     if np.allclose(Y[:, 0], -y[:, 0]):
         Y = -Y
     # assert matrix is as expected
-    assert ((np.allclose(Y[:, 0], y[:, 0])))
+    assert (np.allclose(Y[:, 0], y[:, 0]))
     YQtSVt = np.dot(np.dot(Y, Q.T), SVt)
     YQtSVt /= math.sqrt(w)
     # set B to the d+1 rightmost columns
@@ -150,7 +152,10 @@ def OneSegmentCorset(P, is_coreset=False):
     return OneSegCoreset(repPoints=B, weight=w, SVt=SVt)
 
 
-def PiecewiseCoreset(n, s, eps):
+def PiecewiseCoreset(n, eps):
+    def s(index, points_number):
+        return max(4.0 / float(index), 4.0 / (points_number - index + 1))
+    eps = eps / np.log2(n)
     s_arr = [s(i, n) for i in xrange(1, n + 1)]
     t = sum(s_arr)
     B = []
@@ -163,6 +168,5 @@ def PiecewiseCoreset(n, s, eps):
         b_list.append(b)
     for j in B:
         I = [i + 1 for i, b in enumerate(b_list) if b == b_list[j - 1]]
-        print 1
         W[j - 1] = (1. / s_arr[j - 1]) * sum([s_arr[i - 1] for i in I])
     return W

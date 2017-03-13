@@ -56,6 +56,7 @@ k-segment.pyproj
 k-segment.pyproj
 *.pyproj
 
+.spark_coreset-master/run_k_segment/*
 .idea/*
 spark_coreset-master/.idea/misc.xml
 spark_coreset-master/.idea/modules.xml
