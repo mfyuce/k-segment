@@ -18,7 +18,7 @@ class KSegmentTest(unittest.TestCase):
         # dimension = 2
         k = 3
         epsilon = 0.5
-        n = 300
+        n = 3000
 
         generate_input_file(n)
         data = np.genfromtxt("input.csv", delimiter=" ")
@@ -75,14 +75,14 @@ class KSegmentTest(unittest.TestCase):
 
     def test_bicritiria(self):
         n = 300
-        k = 5
+        k = 8
         data = example1(n)
 
         p = np.c_[np.mgrid[1:n + 1], data]
 
         bicritiria_cost = Coreset.bicriteria(p, k)
         print "Bicritiria estimate: ", bicritiria_cost
-        real_cost = utils.calc_cost_dividers(p, ksegment.k_segment(p, 3))
+        real_cost = utils.calc_cost_dividers(p, ksegment.k_segment(p, k))
         print "real cost: ", real_cost
         self.assertGreaterEqual(real_cost, bicritiria_cost)
 
