@@ -8,12 +8,12 @@ import ksegment
 
 def best_fit_line_cost(P, is_coreset=False):
     best_fit_line = calc_best_fit_line_polyfit(P, is_coreset)
-    return sqrd_dist_sum(P, best_fit_line, is_coreset)
+    return sqrd_dist_sum(P, best_fit_line)
 
 
 def best_fit_line_cost_weighted(P, W, is_coreset=False):
     best_fit_line = calc_best_fit_line_polyfit(P, W, is_coreset)
-    return sqrd_dist_sum_weighted(P, best_fit_line, W, is_coreset)
+    return sqrd_dist_sum_weighted(P, best_fit_line, W)
 
 
 def calc_best_fit_line(P):
