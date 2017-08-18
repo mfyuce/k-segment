@@ -36,9 +36,9 @@ def update_node_info(nodes, prep, cur_n, next_n):
             index = i[0]+1
             # updated cost is the cost to get from the first point to the point previous to cur_n
             # plus the cost from cur_n to next_n, since a point can belong to one segment only.
-            updt_cost = nodes.info[cur_n-1, 0, index-1] + prep[cur_n, next_n]
-            if updt_cost < cur_cost:
-                nodes.info[next_n, 0, index] = updt_cost
+            update_cost = nodes.info[cur_n-1, 0, index-1] + prep[cur_n, next_n]
+            if update_cost < cur_cost:
+                nodes.info[next_n, 0, index] = update_cost
                 nodes.info[next_n, 1, index] = cur_n
 
 
@@ -74,10 +74,11 @@ def k_segment(P, k):
     prep_dist = calc_prep_dist(P)
     # print "distances for each block:\n%s\n" % prep_dist
     result = calc_partitions(prep_dist, len(P), k)
-    # print "dynamic programming (belman) result:\n%s\n" % result.info
+    # print "dynamic programming (Belman) result:\n%s\n" % result.info
     dividers = get_x_val_dividers(P, k,result)
     # print "the x values that divide the points to k segments are:\n%s" % dividers
     return dividers
+
 
 # function to back-trace and figure out the dividers from the result of the dynamic-programming
 def get_x_val_dividers_coreset(D, k, nodes):
@@ -135,7 +136,6 @@ def coreset_k_segment(D, k):
 
 
 def coreset_k_segment_fast_segmentation(D, k, eps):
-    # TODO: Extract to func
     pw = np.empty((0, 4))
     for coreset in D:
         pts = utils.pt_on_line(xrange(int(coreset.b), int(coreset.e) + 1), coreset.g)

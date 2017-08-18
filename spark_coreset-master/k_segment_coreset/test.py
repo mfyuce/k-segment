@@ -15,11 +15,10 @@ class KSegmentTest(unittest.TestCase):
     # cProfile.run('re.compile("test_coreset_merging")')
 
     def test_basic_demo(self):
-        # dimension = 2
+        # generate points
         k = 3
         epsilon = 0.5
         n = 600
-
         generate_input_file(n)
         data = np.genfromtxt("input.csv", delimiter=" ")
         p = np.c_[np.mgrid[1:n + 1], data]
@@ -29,32 +28,28 @@ class KSegmentTest(unittest.TestCase):
         utils.visualize_3d(p, dividers)
 
     def test_fast_segmentation(self):
+        # generate points
         n = 600
-        k = 3
+        k = 6
         epsilon = 10
-
-        # generate_input_file(n)
+        generate_input_file(n)
         data = np.genfromtxt("input.csv", delimiter=" ")
         p = np.c_[np.mgrid[1:n + 1], data]
 
         D = Coreset.build_coreset(p, k, epsilon)
         print D
-        # dividers = ksegment.coreset_k_segment_fast_segmentation(D, k, epsilon)
-        # print "dividers", dividers
-        # print "dividers-cost:", utils.calc_cost_dividers(p, dividers)
-        # utils.visualize_3d(p, dividers)
+        dividers = ksegment.coreset_k_segment_fast_segmentation(D, k, epsilon)
+        print "dividers", dividers
+        print "dividers-cost:", utils.calc_cost_dividers(p, dividers)
+        utils.visualize_3d(p, dividers)
 
     def test_coreset_merging(self):
         # generate points
         n = 120
-        # dimension = 2
-        k = 3
+        k = 6
         epsilon = 0.1
-
-        # data = random_data(N, dimension)
-        # for example1 choose N that divides by 6
-        data = example1(n)
-
+        generate_input_file(n)
+        data = np.genfromtxt("input.csv", delimiter=" ")
         p = np.c_[np.mgrid[1:n + 1], data]
 
         coreset = Coreset.build_coreset(p, k, epsilon)
@@ -111,11 +106,10 @@ class KSegmentTest(unittest.TestCase):
 
     def test_OneSegmentCoreset_Cost(self):
         # generate points
-        N = 1200
-        # for example1 choose N that divides by 6
-        data = example1(N)
+        n = 1200
+        data = example1(n)
 
-        P = np.c_[np.mgrid[1:N + 1], data]
+        P = np.c_[np.mgrid[1:n + 1], data]
         P1 = P[:1000]
         C1 = Coreset.OneSegmentCorset(P1)
 
@@ -136,8 +130,6 @@ class KSegmentTest(unittest.TestCase):
     def test_OneSegmentCoreset_bestFitLineIdentical_diferrentWeights(self):
         # generate points
         N = 1200
-
-        # for example1 choose N that divides by 6
         data = example1(N)
 
         P = np.c_[np.mgrid[1:N + 1], data]
@@ -151,8 +143,8 @@ class KSegmentTest(unittest.TestCase):
         C2 = Coreset.OneSegmentCorset(P2)
         C3 = Coreset.OneSegmentCorset(P3)
         C4 = Coreset.OneSegmentCorset(P4)
-        C1_C2 = [C1,C2]
-        C3_C4 = [C3,C4]
+        C1_C2 = [C1, C2]
+        C3_C4 = [C3, C4]
         coreset_of_coresets1 = Coreset.OneSegmentCorset(C1_C2, True)
         coreset_of_coresets2 = Coreset.OneSegmentCorset(C3_C4, True)
         coreset_of_coresetrs = [coreset_of_coresets1, coreset_of_coresets2]
@@ -169,8 +161,8 @@ class KSegmentTest(unittest.TestCase):
                          [2, 3.4707861, -3.28776192],
                          [3, 3.67879099, -3.43908923]])
         w = [1.0, 1.0, 1.0]
-        best_fit_Line = utils.calc_best_fit_line_polyfit(data, w)
-        print best_fit_Line
+        best_fit_line = utils.calc_best_fit_line_polyfit(data, w)
+        print best_fit_line
 
     def test_calc_sqr_dist_weighted(self):
         data = np.array([[1, 1],
@@ -206,6 +198,7 @@ def example1(n):
     x += np.random.normal(size=x.shape) * 3
     y += np.random.normal(size=y.shape) * 3
     return np.c_[x, y]
+
 
 # random
 def example2():
