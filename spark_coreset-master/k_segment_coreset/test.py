@@ -25,7 +25,7 @@ class KSegmentTest(unittest.TestCase):
 
         coreset = Coreset.build_coreset(p, k, epsilon)
         dividers = ksegment.coreset_k_segment(coreset, k)
-        utils.visualize_3d(p, dividers)
+        # utils.visualize_3d(p, dividers) # Uncomment to see resultss
 
     def test_fast_segmentation(self):
         # generate points
@@ -41,7 +41,7 @@ class KSegmentTest(unittest.TestCase):
         dividers = ksegment.coreset_k_segment_fast_segmentation(D, k, epsilon)
         print "dividers", dividers
         print "dividers-cost:", utils.calc_cost_dividers(p, dividers)
-        utils.visualize_3d(p, dividers)
+        # utils.visualize_3d(p, dividers) # Uncomment to see resultss
 
     def test_coreset_merging(self):
         # generate points
@@ -55,7 +55,7 @@ class KSegmentTest(unittest.TestCase):
         coreset = Coreset.build_coreset(p, k, epsilon)
         coreset_of_coreset = Coreset.build_coreset(coreset, k, epsilon, is_coreset=True)
         dividers = ksegment.coreset_k_segment(coreset_of_coreset, k)
-        utils.visualize_3d(p, dividers)
+        # utils.visualize_3d(p, dividers) # Uncomment to see resultss
 
     def test_bicritiria(self):
         n = 300
@@ -68,41 +68,7 @@ class KSegmentTest(unittest.TestCase):
         print "Bicritiria estimate: ", bicritiria_cost
         real_cost = utils.calc_cost_dividers(p, ksegment.k_segment(p, k))
         print "real cost: ", real_cost
-        self.assertGreaterEqual(real_cost, bicritiria_cost)
-
-    def test_best_fit_line_multiple_coresets(self):
-        # generate points
-        N = 1200
-        # for example1 choose N that divides by 6
-        data = example1(N)
-
-        P = np.c_[np.mgrid[1:N + 1], data]
-        P1 = P[:1000]
-        P2 = P[1000:]
-
-        C = Coreset.OneSegmentCorset(P)
-        C1 = Coreset.OneSegmentCorset(P1)
-        C2 = Coreset.OneSegmentCorset(P2)
-
-        best_fit_line_P = utils.calc_best_fit_line(P)
-        best_fit_line_C = utils.calc_best_fit_line(C.repPoints)
-        best_fit_line_P1 = utils.calc_best_fit_line(P1)
-        best_fit_line_C1 = utils.calc_best_fit_line(C1.repPoints)
-
-        original_cost_not_best_fit_line = utils.sqrd_dist_sum(P, best_fit_line_P)
-        single_coreset_cost = utils.sqrd_dist_sum(C.repPoints, best_fit_line_P) * C.weight
-        C1_cost = int(utils.sqrd_dist_sum(C1.repPoints, best_fit_line_P) * C1.weight)
-        P1_cost = int(utils.sqrd_dist_sum(P1, utils.calc_best_fit_line(P1)))
-        C2_cost = int(utils.sqrd_dist_sum(C2.repPoints, best_fit_line_P) * C2.weight)
-        dual_coreset_cost = C1_cost + C2_cost
-
-        self.assertEqual(int(original_cost_not_best_fit_line), int(single_coreset_cost))
-        self.assertEqual(C1_cost, P1_cost)
-        self.assertEqual(int(original_cost_not_best_fit_line), int(dual_coreset_cost))
-
-        res2 = utils.calc_best_fit_line_coreset(C1, C2)
-
-        self.assertEqual(best_fit_line_P, res2)
+        self.assertGreaterEqual(bicritiria_cost, real_cost)
 
     def test_OneSegmentCoreset_Cost(self):
         # generate points
@@ -126,35 +92,6 @@ class KSegmentTest(unittest.TestCase):
 
         self.assertEqual(int(original_cost_best_fit_line), int(single_coreset_cost_best_fit_line))
         self.assertEqual(int(original_cost_not_best_fit_line), int(single_coreset_cost_not_best_fit_line))
-
-    def test_OneSegmentCoreset_bestFitLineIdentical_diferrentWeights(self):
-        # generate points
-        N = 1200
-        data = example1(N)
-
-        P = np.c_[np.mgrid[1:N + 1], data]
-        P1 = P[:5]
-        P2 = P[5:20]
-        P3 = P[20:30]
-        P4 = P[30:]
-
-        C = Coreset.OneSegmentCorset(P)
-        C1 = Coreset.OneSegmentCorset(P1)
-        C2 = Coreset.OneSegmentCorset(P2)
-        C3 = Coreset.OneSegmentCorset(P3)
-        C4 = Coreset.OneSegmentCorset(P4)
-        C1_C2 = [C1, C2]
-        C3_C4 = [C3, C4]
-        coreset_of_coresets1 = Coreset.OneSegmentCorset(C1_C2, True)
-        coreset_of_coresets2 = Coreset.OneSegmentCorset(C3_C4, True)
-        coreset_of_coresetrs = [coreset_of_coresets1, coreset_of_coresets2]
-        coreset_of_coresets3 = Coreset.OneSegmentCorset(coreset_of_coresetrs, True)
-
-        original_points_best_fit_line = utils.calc_best_fit_line(P)
-        single_coreset_best_fit_line = utils.calc_best_fit_line(C.repPoints)
-        coreset_of_coresetes_best_fit_line = utils.calc_best_fit_line(coreset_of_coresets3.repPoints)
-        np.testing.assert_allclose(original_points_best_fit_line, coreset_of_coresetes_best_fit_line)
-        np.testing.assert_allclose(coreset_of_coresetes_best_fit_line, single_coreset_best_fit_line)
 
     def test_calc_best_fit_line_weighted(self):
         data = np.array([[1, 3.2627812, -3.1364346],

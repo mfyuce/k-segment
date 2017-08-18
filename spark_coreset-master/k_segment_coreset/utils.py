@@ -1,9 +1,6 @@
 import numpy as np
 import mpl_toolkits.mplot3d as m3d
 import matplotlib.pyplot as plt
-import Coreset
-import test
-import ksegment
 
 
 def best_fit_line_cost(P, is_coreset=False):
