@@ -39,7 +39,7 @@ p = random_uniform_points(100000, 10000000)
 k = 5
 test = testCoreset(p)
 test_range = range(100,5500,500)
-trails = 10
+trails = 1
 """
 No tree.
 """
@@ -50,3 +50,4 @@ Using `stream.m`:
 """
 test.run_test(k, test_range, trails, tree=True, num_chunks=4)
 
+print("Finished")

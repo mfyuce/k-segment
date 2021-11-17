@@ -86,23 +86,23 @@ class KMeanspipe():
         arg_rand = randint(0, len(self.points)-1)
         C = []
         C.append(self.points[arg_rand])
-        print "initial center is %s" %(C, )
+        print ("initial center is %s" %(C, ))
 
         # 2 (currently doing nothing with phi, since we used fixed initializationSteps=5)
         #phi = self.points_cost(np.asarray(self.points) , C)
 
         #3-6
         initializationSteps = self.init_steps #np.log10(phi) - modified original formula in order to align to spark's implementation - 5
-        print "number of iterations will be %d" %initializationSteps
+        print ("number of iterations will be %d" %initializationSteps)
         for i in range(0, initializationSteps):
             C_prime = self.sample_independently_bahman(points=self.points, centers=C, overSamplingFactor=l)
             C += C_prime
 
         #7-8
-        print "KMeans|| output before running kmeans++ is %s" %(C, )
+        print ("KMeans|| output before running kmeans++ is %s" %(C, ))
 
         initializedCenters = KMeanspp(np.asarray(C), self.k).seed()
-        print "KMeans|| result is %s" %(initializedCenters.tolist(), )
+        print ("KMeans|| result is %s" %(initializedCenters.tolist(), ))
         return initializedCenters
 
 #usage example

@@ -29,11 +29,11 @@ def do_kmeans(k, datafile, n_init=10, plot=True, v=1):
     cost = alg.inertia_
     
     if v>0:
-        print "K-means using sklearn for ", datafile, ", with k=", k, "."
-        if v>1: print "reference cost: ", cost
-        if v>2: print "centers: ", means
-        if v>3: print "centers str: ", str(means).replace("\n", ";")
-        if v>5: print "points: ", p
+        print ("K-means using sklearn for ", datafile, ", with k=", k, ".")
+        if v>1: print ("reference cost: ", cost)
+        if v>2: print ("centers: ", means)
+        if v>3: print ("centers str: ", str(means).replace("\n", ";"))
+        if v>5: print ("points: ", p)
     
     if plot:
         plt.plot(p[:,0], p[:,1],'go')

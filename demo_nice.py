@@ -28,17 +28,17 @@ plt.plot(p[:,0], p[:,1],'go')
 model = KMeans(n_clusters=2)
 alg = model.fit(p)
 aaa = w_KMeans.KMeans(p, np.expand_dims(w, axis=0), 2)
-print "weighted_kmeans centers ravel(): ", aaa.compute().ravel()
+print ("weighted_kmeans centers ravel(): ", aaa.compute().ravel())
 means = alg.cluster_centers_
-print "sklearn K-means centers ravel(): ", means.ravel()
+print ("sklearn K-means centers ravel(): ", means.ravel())
 cost = alg.inertia_
-print "real cost (sklearn): ", cost
+print ("real cost (sklearn): ", cost)
 plt.plot(means[:,0], means[:,1],'ro')
 plt.show()
 
 t = 50
 delta = 100
-print "regressing sample size in [50, 2000] w/ jumps of", delta, "each w/", t, "trials..."
+print ("regressing sample size in [50, 2000] w/ jumps of", delta, "each w/", t, "trials...")
 x = []
 y = []
 y_uni = []
@@ -46,7 +46,7 @@ for size in range(50, 2000, delta):
     c_mistake = 0
     u_mistake = 0
     x.append(size)
-    print "size:", size, "trials",
+    print ("size:", size, "trials",)
     for i in range(0,t):
         s = np.random.choice(range(0,10030),size)
         s = p[s]
@@ -64,7 +64,7 @@ for size in range(50, 2000, delta):
     y.append(c_mistake)
     u_mistake /= t
     y_uni.append(u_mistake)
-    print "mistakes for uniform:", round(u_mistake, 3), "coreset:", round(c_mistake, 3)
+    print ("mistakes for uniform:", round(u_mistake, 3), "coreset:", round(c_mistake, 3))
     u_mistake = c_mistake = 0
 plt.plot(x, y, 'r')
 plt.plot(x, y_uni, 'b')

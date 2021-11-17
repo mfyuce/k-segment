@@ -42,7 +42,7 @@ class Coreset(object):
         t = np.sum(dist*self.weights)
         weights = 1/(dist*size)
         weights *= t
-        # print t
+        # print (t)
         dist *= self.weights
         dist /= np.sum(dist)
         prob = dist # its actually the sampling probability

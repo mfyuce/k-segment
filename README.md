@@ -1,6 +1,11 @@
 # spark_coreset
 Spark Framework for running coresets
 
+#Installation
+virtualenv venv
+sudo apt-get install python3-tk
+pip install -r requirements.txt 
+
 # running instructions for windows
 create environment variable:
 https://blogs.msdn.microsoft.com/arsen/2016/02/09/resolving-spark-1-6-0-java-lang-nullpointerexception-not-found-value-sqlcontext-error-when-running-spark-shell-on-windows-10-64-bit/

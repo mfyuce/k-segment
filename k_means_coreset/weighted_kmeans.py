@@ -36,7 +36,7 @@ class KMeans(object):
                 c = a*w
                 new_center = np.sum(c, axis=0, keepdims=1)
                 if np.sum(w) == 0:
-                    print "not nice"
+                    print ("not nice")
                     continue
                 new_center /= np.sum(w)
                 self.centers[i] = new_center

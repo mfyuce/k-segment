@@ -24,7 +24,7 @@ if __name__ == "__main__":
     means = KMeans(points, np.expand_dims(weights, axis=0), k, rounds=20)
     means = means.compute()
     real_cost = (np.sum(utils.get_dist_to_centers(org, KMeans(org, np.expand_dims(np.ones(org.shape[0]), axis=0), k, rounds=20).compute())))
-    print real_cost
+    print (real_cost)
 
 
 
@@ -34,6 +34,6 @@ if __name__ == "__main__":
     points = sc.textFile("small_dataset.txt").map(parseVector)
     closest = points.map(lambda p: (distanceToClosest(p, means)))
     cs_result = closest.reduce(lambda a, b: a+b)
-    print cs_result
-    print "mistake: ", (1-real_cost/cs_result)
+    print (cs_result)
+    print ("mistake: ", (1-real_cost/cs_result))
     sc.stop()

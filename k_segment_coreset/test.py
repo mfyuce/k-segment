@@ -37,10 +37,10 @@ class KSegmentTest(unittest.TestCase):
         p = np.c_[np.mgrid[1:n + 1], data]
 
         D = Coreset.build_coreset(p, k, epsilon)
-        print D
+        print (D)
         dividers = ksegment.coreset_k_segment_fast_segmentation(D, k, epsilon)
-        print "dividers", dividers
-        print "dividers-cost:", utils.calc_cost_dividers(p, dividers)
+        print ("dividers", dividers)
+        print ("dividers-cost:", utils.calc_cost_dividers(p, dividers))
         # utils.visualize_3d(p, dividers) # Uncomment to see resultss
 
     def test_coreset_merging(self):
@@ -65,9 +65,9 @@ class KSegmentTest(unittest.TestCase):
         p = np.c_[np.mgrid[1:n + 1], data]
 
         bicritiria_cost = Coreset.bicriteria(p, k)
-        print "Bicritiria estimate: ", bicritiria_cost
+        print ("Bicritiria estimate: ", bicritiria_cost)
         real_cost = utils.calc_cost_dividers(p, ksegment.k_segment(p, k))
-        print "real cost: ", real_cost
+        print ("real cost: ", real_cost)
         self.assertGreaterEqual(bicritiria_cost, real_cost)
 
     def test_OneSegmentCoreset_Cost(self):
@@ -99,7 +99,7 @@ class KSegmentTest(unittest.TestCase):
                          [3, 3.67879099, -3.43908923]])
         w = [1.0, 1.0, 1.0]
         best_fit_line = utils.calc_best_fit_line_polyfit(data, w)
-        print best_fit_line
+        print (best_fit_line)
 
     def test_calc_sqr_dist_weighted(self):
         data = np.array([[1, 1],
@@ -108,7 +108,7 @@ class KSegmentTest(unittest.TestCase):
                          [4, 4]])
         w = [1, 0, 0, 1]
         best_fit_line_cost_weighted = utils.best_fit_line_cost_weighted(data,w)
-        print best_fit_line_cost_weighted
+        print (best_fit_line_cost_weighted)
 
     def test_Piecewise_coreset(self):
         n = 600

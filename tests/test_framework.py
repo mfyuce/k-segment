@@ -2,11 +2,18 @@ __author__ = 'Anton'
 
 import sys
 import numpy as np
+import pathlib
+
+PACKAGE_PARENT = pathlib.Path(__file__).parent.parent
+sys.path.append(str(PACKAGE_PARENT /  "k_means_coreset"))
+
 import weighted_kmeans as w_KMeans
 import utils
 from stream import Stream
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
+from matplotlib import use 
+use( 'tkagg' )
 from coreset import Coreset
 class testCoreset():
     def __init__(self,points):
@@ -30,7 +37,7 @@ class testCoreset():
         for size in sizes:
             uni_cost = []
             cor_cost = []
-            print "size:", size, "trials: ",
+            print ("size:", size, "trials: ",)
             x.append(size)
             for t in range(0, trials):
                 #uni sampling:
@@ -58,7 +65,7 @@ class testCoreset():
             u_mistake = np.average(uni_cost)
             y_uni.append(u_mistake)
             y_cor.append(c_mistake)
-            print "  mistake for uniform:", round(u_mistake, 10), "coreset:", round(c_mistake, 10)
+            print ("  mistake for uniform:", round(u_mistake, 10), "coreset:", round(c_mistake, 10))
         return x, y_uni, y_cor
 
     def _test_tree(self,real_cost, k, sizes, trials, z, chunks):
@@ -69,7 +76,7 @@ class testCoreset():
         for size in sizes:
             uni_cost = []
             cor_cost = []
-            print "size:", size, "trials: ",
+            print ("size:", size, "trials: ",)
             x.append(size)
             for t in range(0, trials):
                 #uni sampling:
@@ -101,8 +108,8 @@ class testCoreset():
             y_uni.append(u_mistake)
             y_cor.append(c_mistake)
 
-            print "  mistake for uniform:", round(u_mistake, 10), "coreset:", round(c_mistake, 10)
-        print "weight average mistake for all(!) of the trails(should be clost to 0): ", 1-np.sum(self.w)/np.average(weights_avg)
+            print ("  mistake for uniform:", round(u_mistake, 10), "coreset:", round(c_mistake, 10))
+        print ("weight average mistake for all(!) of the trails(should be clost to 0): ", 1-np.sum(self.w)/np.average(weights_avg))
         return x, y_uni, y_cor
 
     def run_test(self,k,test_range, num_trials, cset_kmeans_trials=5, tree=False, num_chunks = 4):
@@ -116,7 +123,7 @@ class testCoreset():
         plt.plot(means[:,0], means[:,1],'ro')
         plt.show()
 
-        print "red is coreset, blue is uniform"
+        print ("red is coreset, blue is uniform")
         plt.plot(x, y_cor, 'r')
         plt.plot(x, y_uni, 'b')
         plt.show()

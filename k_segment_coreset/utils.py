@@ -28,7 +28,7 @@ def calc_best_fit_line(P):
         data = P[:, 1:]
         return np.linalg.lstsq(A, data)[0]
     except:
-        print "error in calc_best_fit_line" + P
+        print ("error in calc_best_fit_line" + P)
 
 
 def calc_best_fit_line_polyfit(P, W=False, is_coreset=False):
@@ -41,7 +41,7 @@ def calc_best_fit_line_polyfit(P, W=False, is_coreset=False):
         data = P[:, 1:]
         return np.polyfit(time_array, data, 1, w=W)
     except:
-        print "error in calc_best_fit_line polyfit" + "\nis coreset: " + is_coreset.__str__()
+        print ("error in calc_best_fit_line polyfit" + "\nis coreset: " + is_coreset.__str__())
 
 
 def sqrd_dist_sum(P, line):
@@ -54,7 +54,7 @@ def sqrd_dist_sum(P, line):
         squared_norm_distances = np.square(norm_vector)
         return sum(squared_norm_distances)
     except:
-        print "error in sqrd_dist_sum"
+        print ("error in sqrd_dist_sum")
 
 
 def sqrd_dist_sum_weighted(P, line, w):
@@ -67,7 +67,7 @@ def sqrd_dist_sum_weighted(P, line, w):
         squared_norm_distances = np.square(norm_vector)
         return sum(squared_norm_distances * (w ** 2))
     except:
-        print "error in sqrd_dist_sum"
+        print ("error in sqrd_dist_sum")
 
 
 def pt_on_line(x, line):

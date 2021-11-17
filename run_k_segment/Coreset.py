@@ -1,5 +1,3 @@
-from operator import is_
-
 import numpy as np
 import math
 import utils
@@ -20,31 +18,32 @@ class coreset:
         self.e = e  # coreset ending index
 
     def __repr__(self):
-        return "OneSegmentCoreset " + str(self.b) + "-" + str(self.e) + "\n" + str(self.C.repPoints) + "\n"
+        return "OneSegmentCoreset " + str(self.b) + "-" + str(self.e) +"\n" + str(self.C.repPoints) + "\n"
 
 
 def build_coreset(P, k, eps, is_coreset=False):
     h = bicriteria(P, k, is_coreset)
-    print "bicritiria estimate:", h
+    print ("bicritiria estimate:", h)
+    # TODO verify if *100 is needed here.
     b = (eps ** 2 * h) / (100 * k * np.log2(len(P)))
     return BalancedPartition(P, eps, b, is_coreset)
 
 
 def one_seg_cost(P, is_coreset=False):
     if is_coreset:
-        one_segment_coreset = OneSegmentCorset(P, is_coreset)
-        return utils.best_fit_line_cost(one_segment_coreset.repPoints, is_coreset) * one_segment_coreset.weight
+        oneSegmentCoreset = OneSegmentCorset(P, is_coreset)
+        return utils.best_fit_line_cost(oneSegmentCoreset.repPoints, is_coreset) * oneSegmentCoreset.weight
     else:
         return utils.best_fit_line_cost(P, is_coreset)
 
 
 def bicriteria(P, k, is_coreset=False):
     if len(P) <= (4 * k + 1):
-        return one_seg_cost(P, is_coreset)
+        return 0 # TODO changes
     m = int(math.floor(len(P) / (4 * k)))
     i = 0
     j = m
-    # one_seg_res will  hold segment starting index and result (squared distance sum)
+    # one_seg_res will  hold segment starting index and result (squred distance sum)
     one_seg_res = []
     # partition to 4k segments and call 1-segment for each
     while i < len(P):
@@ -56,17 +55,14 @@ def bicriteria(P, k, is_coreset=False):
     one_seg_res = sorted(one_seg_res, key=lambda res: res[0])
     # res = the distances of the min k+1 segments
     res = 0
-    # sum distances of k+1 min segments and make a list of point to delete from P to get P \ Q from the algorithm
+    # sum distances of k+1 min segments and make a list of point to delete from P to get P \ Q from the algo'
     rows_to_delete = []
     for i in xrange(k + 1):
         res += one_seg_res[i][0]
         for j in xrange(m):
             rows_to_delete.append(one_seg_res[i][1] + j)
     P = np.delete(P, rows_to_delete, axis=0)
-    c = bicriteria(P, k, is_coreset)
-    if type(res) != type(c):
-        print c
-    return res + c
+    return res + bicriteria(P, k, is_coreset)
 
 
 def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
@@ -83,6 +79,7 @@ def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
     for i in xrange(0, n):
         Q.append(points[i])
         cost = one_seg_cost(np.asarray(Q), is_coreset)
+        # print ("bp cost:", cost, "points", Q)
         # if current number of points can be turned into a coreset - 3 conditions :
         # 1) cost passed threshold
         # 2) number of points to be packaged greater than dimensions + 1
@@ -100,15 +97,17 @@ def BalancedPartition(P, a, bicritiriaEst, is_coreset=False):
                 b = T[0].b
                 e = T[-1].e
             else:
-                b = T[0][0]     # signal index of first item in T
-                e = T[-1][0]    # signal index of last item in T
+                b = T[0][0]  # signal index of first item in T
+                e = T[-1][0]  # signal index of last item in T
             D.append(coreset(C, g, b, e))
             Q = [Q[-1]]
     return D
 
 
 def OneSegmentCorset(P, is_coreset=False):
+    # print ("###########################", is_coreset, P)
     if len(P) < 2:
+        # print ("edge case:", P)
         return P[0].C
     if is_coreset:
         svt_to_stack = []
@@ -123,22 +122,22 @@ def OneSegmentCorset(P, is_coreset=False):
     S = np.diag(s)
     # calculate SV
     SVt = np.dot(S, V)
-    u = SVt[:, 0]   # u is leftmost column of SVt
+    u = SVt[:, 0]  # u is leftmost column of SVt
     w = (np.linalg.norm(u) ** 2) / X.shape[1]
-    q = np.identity(X.shape[1])     # q - temporary matrix to build an identity matrix with leftmost column - u
+    q = np.identity(X.shape[1])  # q - temporary matrix to build an identity matrix with leftmost column - u
     try:
         q[:, 0] = u / np.linalg.norm(u)
     except:
-        print "iscoreset:", is_coreset, "P", P, "u:", u, "q:", q
-    Q = np.linalg.qr(q)[0]      # QR decomposition returns in Q what is requested
+        print ("iscoreset:",is_coreset, "P", P,"u:", u, "q:", q)
+    Q = np.linalg.qr(q)[0]  # QR decomposition returns in Q what is requested
     if np.allclose(Q[:, 0], -q[:, 0]):
         Q = -Q
     # assert matrix is as expected
     assert (np.allclose(Q[:, 0], q[:, 0]))
     # calculate Y
     y = np.identity(X.shape[1])  # y - temporary matrix to build an identity matrix with leftmost column
-    y_left_col = math.sqrt(w) / np.linalg.norm(u)
-    y[:, 0] = y_left_col  # set y's first column to be sqrt of w divided by u's normal
+    yLeftCol = math.sqrt(w) / np.linalg.norm(u)
+    y[:, 0] = yLeftCol  # set y's first column to be sqrt of w divided by u's normal
     # compute Y with QR decompression - first column will not change - it is already normalized
     Y = np.linalg.qr(y)[0]
     if np.allclose(Y[:, 0], -y[:, 0]):

@@ -21,7 +21,7 @@ def gen_dataset(b=None,m=None,s=None):
     if len(sys.argv) > 1:
         x = int(sys.argv[1])
         fact = max(x, fact)
-    print "using factor=", fact
+    print ("using factor=", fact)
 
     if b is None:
         b = np.random.randint(0,10)
@@ -63,6 +63,6 @@ def gen_dataset(b=None,m=None,s=None):
 
 p, k  = gen_dataset(1,3,10)
 f="dataset.txt"
-print 'saving to file:', f
+print ('saving to file:', f)
 np.savetxt(f, p)
 

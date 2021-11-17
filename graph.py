@@ -63,7 +63,7 @@ def main(argv):
     v = int(args.verbose)
     d = np.loadtxt(args.input)#, skiprows=1)
     t = np.loadtxt(args.input + '1', dtype=str, delimiter='@')
-    if v: print 't=', t
+    if v: print ('t=', t)
     y1 = d[:,1]
     y2 = d[:,2]
     if v>1:

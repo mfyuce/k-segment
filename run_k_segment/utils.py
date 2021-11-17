@@ -28,7 +28,7 @@ def calc_best_fit_line(P):
         data = P[:, 1:]
         return np.linalg.lstsq(A, data)[0]
     except:
-        print "error in calc_best_fit_line"
+        print ("error in calc_best_fit_line")
 
 
 def calc_best_fit_line_polyfit(P, W=False, is_coreset=False):
@@ -43,7 +43,7 @@ def calc_best_fit_line_polyfit(P, W=False, is_coreset=False):
         data = P[:, 1:]
         return np.polyfit(time_array, data, 1, w=W)
     except:
-        print "error in calc_best_fit_line"
+        print ("error in calc_best_fit_line")
 
 
 def sqrd_dist_sum(P, line,is_coreset=False):
@@ -56,7 +56,7 @@ def sqrd_dist_sum(P, line,is_coreset=False):
         squared_norm_distances = np.square(norm_vector)
         return sum(squared_norm_distances)
     except:
-        print "error in sqrd_dist_sum"
+        print ("error in sqrd_dist_sum")
 
 
 def sqrd_dist_sum_weighted(P, line, w, is_coreset=False):
@@ -69,7 +69,7 @@ def sqrd_dist_sum_weighted(P, line, w, is_coreset=False):
         squared_norm_distances = np.square(norm_vector)
         return sum(squared_norm_distances * (w ** 2))
     except:
-        print "error in sqrd_dist_sum"
+        print ("error in sqrd_dist_sum")
 
 
 def pt_on_line(x, line):
@@ -108,7 +108,7 @@ def visualize_3d(P, dividers):
         line_pts_list.append([pt_on_line(dividers[i], best_fit_line),
                               pt_on_line(dividers[i + 1] - (1 if i != len(dividers) - 2 else 0), best_fit_line)])
         all_sgmnt_sqrd_dist_sum += sqrd_dist_sum(segment, best_fit_line)
-    # print "real squared distance sum: ", all_sgmnt_sqrd_dist_sum
+    # print ("real squared distance sum: ", all_sgmnt_sqrd_dist_sum)
 
 
 def is_unitary(m):

@@ -93,7 +93,7 @@ if __name__ == "__main__":
     runtg.append(xlabel0)
     runtg.append('k='+str(k) + '; iStep='+str(iStep) + '; trials='+str(trials) + '; rounds='+str(rnds) + '; parts='+str(xx) + ';')
     runtg.append('coreset gen: size='+str(csize) + ';iStep='+str(csg_isteps) + ';rounds='+str(csg_rounds) + ';zloop='+str(zloop) )
-    runtag = string.join(runtg, '@'); print '\n\n' + runtag
+    runtag = string.join(runtg, '@'); print ('\n\n' + runtag)
     total_time = time.time()
     if not testk: ref_cost, N = ref_kmeans(k)
     

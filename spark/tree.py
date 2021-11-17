@@ -95,7 +95,7 @@ if __name__ == "__main__":
         .mapPartitionsWithIndex(k_segment_coreset_read_point_batch) # from text file to (key,numpy_array)
 
     # a = points.collect()
-    # print a
+    # print (a)
 
     def computeTree(rdd, f):
         while rdd.getNumPartitions() != 1:
@@ -109,6 +109,6 @@ if __name__ == "__main__":
 
 
     result = computeTree(points, k_segment_merge)
-    print result
-    print len(result)
-    print ksegment.coreset_k_segment_fast_segmentation(result, k, eps)
+    print (result)
+    print (len(result))
+    print (ksegment.coreset_k_segment_fast_segmentation(result, k, eps))

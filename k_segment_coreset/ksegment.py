@@ -72,11 +72,11 @@ def calc_prep_dist(P):
 
 def k_segment(P, k):
     prep_dist = calc_prep_dist(P)
-    # print "distances for each block:\n%s\n" % prep_dist
+    # print ("distances for each block:\n%s\n" % prep_dist)
     result = calc_partitions(prep_dist, len(P), k)
-    # print "dynamic programming (Belman) result:\n%s\n" % result.info
+    # print ("dynamic programming (Belman) result:\n%s\n" % result.info)
     dividers = get_x_val_dividers(P, k,result)
-    # print "the x values that divide the points to k segments are:\n%s" % dividers
+    # print ("the x values that divide the points to k segments are:\n%s" % dividers)
     return dividers
 
 
@@ -127,11 +127,11 @@ def calc_weighted_prep_dist(pw):
 
 def coreset_k_segment(D, k):
     prep_dist = calc_coreset_prep_dist(D)
-    # print "distances for each block:\n%s\n" % prep_dist
+    # print ("distances for each block:\n%s\n" % prep_dist)
     result = calc_partitions(prep_dist, len(D), k)
-    # print "dynamic programming (belman) result:\n%s\n" % result.info
+    # print ("dynamic programming (belman) result:\n%s\n" % result.info)
     dividers = get_x_val_dividers_coreset(D, k, result)
-    # print "the x values that divide the points to k segments are:\n%s" % dividers
+    # print ("the x values that divide the points to k segments are:\n%s" % dividers)
     return dividers
 
 
@@ -142,12 +142,12 @@ def coreset_k_segment_fast_segmentation(D, k, eps):
         w = Coreset.PiecewiseCoreset(len(pts[0]), eps)
         p_coreset = np.column_stack((pts[0], pts[1], pts[2], w))
         p_coreset_filtered = p_coreset[p_coreset[:, 3] > 0]
-        # print "weighted points", p_coreset_filtered
+        # print ("weighted points", p_coreset_filtered)
         pw = np.append(pw, p_coreset_filtered, axis=0)
     prep_dist = calc_weighted_prep_dist(pw)
-    # print "distances for each block:\n%s\n" % prep_dist
+    # print ("distances for each block:\n%s\n" % prep_dist)
     result = calc_partitions(prep_dist, len(pw), k)
-    # print "dynamic programming (belman) result:\n%s\n" % result.info
+    # print ("dynamic programming (belman) result:\n%s\n" % result.info)
     dividers = get_x_val_dividers(pw, k, result)
-    # print "the x values that divide the points to k segments are:\n%s" % dividers
+    # print ("the x values that divide the points to k segments are:\n%s" % dividers)
     return dividers
